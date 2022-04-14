@@ -30,9 +30,35 @@
         center: [144.9631, -37.8136],
         zoom: 10.7
     });
-
-    // Code from the next step will go here.
-
+    map.on('load', () => {
+        // Add a data source containing GeoJSON data.
+        map.addSource('sa2', {
+            'type': 'geojson',
+            'data': 'SA3_2021_AUST_SHP_GDA2020-greater-melb.geojson'
+        });
+        // Add a new layer to visualize the polygon.
+        // map.addLayer({
+        //     'id': 'sa2',
+        //     'type': 'fill',
+        //     'source': 'sa2', // reference the data source
+        //     'layout': {},
+        //     'paint': {
+        //         'fill-color': '#0080ff', // blue color fill
+        //         'fill-opacity': 0.5
+        //     }
+        // });
+        // Add a black outline around the polygon.
+        map.addLayer({
+            'id': 'outline',
+            'type': 'line',
+            'source': 'sa2',
+            'layout': {},
+            'paint': {
+                'line-color': '#000',
+                'line-width': 3
+            }
+        });
+    });
 </script>
 </body>
 </html>
