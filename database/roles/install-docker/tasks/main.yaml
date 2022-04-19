@@ -1,0 +1,26 @@
+--- 
+# Docker Installation 
+
+# Following https://docs.docker.com/engine/install/ubuntu/
+- name: Docker install - setup repository
+  # elevated privileges
+  become: yes
+  ansible.builtin.apt:
+    name: [ca-certificates, curl, gnupg, lsb-release]
+    # run apt-get update
+    update_cache: yes
+- name: Docker install - add official GPG key
+  become: yes
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /usr/share/keyrings/docker-archive-keyring.gpg
+- name: Docker install - setup stable build
+  become: yes
+  ansible.builtin.shell:
+    cmd: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+- name: Install docker engine
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+    name: [docker-ce, docker-ce-cli, containerd.io]
+    
