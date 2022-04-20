@@ -4,8 +4,8 @@ availability_zone: melbourne-qh2-uom
 instance_image: 356ff1ed-5960-4ac2-96a1-0c0198e6a999
 instance_key_name: database
 # 2 CPU, 9GB RAM
-#instance_flavor: uom.mse.2c9g
-instance_flavor: uom.mse.1c4g
+instance_flavor: uom.mse.2c9g
+#instance_flavor: uom.mse.1c4g
 
 # Volume
 volumes:
@@ -28,11 +28,24 @@ security_groups:
 #    port_range_min: 80
 #    port_range_max: 80
 #    remote_ip_prefix: 0.0.0.0/0
-  - name: couchdb-clustered
-    description: "Security group for clustered CouchDB"
+# Couch db specific security groups: https://docs.couchdb.org/en/stable/setup/cluster.html
+  - name: couchdb-default
+    description: "Security group for default CouchDB communication"
     protocol: tcp
     port_range_min: 5984
     port_range_max: 5984
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb-cluster-discovery
+    description: "Security group for clustered CouchDB to discover nodes (EPMD)"
+    protocol: tcp
+    port_range_min: 4369
+    port_range_max: 4369
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb-cluster-discovery
+    description: "Security group for clustered CouchDB to communicate via Erlang"
+    protocol: tcp
+    port_range_min: 9100
+    port_range_max: 9100
     remote_ip_prefix: 0.0.0.0/0
 
 # Instance
