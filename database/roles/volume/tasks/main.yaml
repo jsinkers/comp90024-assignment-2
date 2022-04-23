@@ -1,0 +1,12 @@
+---
+# format and mount volumes
+- name: Create a ext4 filesystem on /dev/sdb
+  filesystem:
+    fstype: ext4
+    dev: /dev/sdb
+- name: Mount database volume on /media/storage_59
+  mount:
+    path: /media/storage_59
+    src: /dev/sdb
+    fstype: ext4
+    state: mounted

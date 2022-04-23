@@ -18,5 +18,6 @@
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
   roles:
+    - role: volume
     - role: docker
     - role: couchdb
