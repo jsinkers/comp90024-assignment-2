@@ -1,4 +1,4 @@
-# TODO: unused import? I'm guessing there was a sleep in here somewhere
+# TODO: unused import? I'm guessing there was a sleep in here somewhere. If no longer in use, would suggest you delete
 import time
 
 import tweepy
@@ -18,9 +18,9 @@ class tweet(tweepy.Stream):
         # TODO: username, password, IP address, and ports are ideally environment variables
         self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
         print("Connecting to server...")
-        #self.server = DB.Server(self.__url)
+        self.server = DB.Server(self.__url)
         print("Connected to server")
-        #self.db = self.server['twitter']
+        self.db = self.server['twitter']
 
         self.analyser = SentimentIntensityAnalyzer()
         # load suburb data
