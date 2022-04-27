@@ -3,3 +3,4 @@
 **/*.pem
 **/openrc.sh
 .idea/
+**/__pycache__
