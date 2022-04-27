@@ -1,2 +1,5 @@
 tweepy
 couchdb
+vaderSentiment
+geopandas
+shapely
