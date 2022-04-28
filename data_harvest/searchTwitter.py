@@ -20,7 +20,7 @@ class search(tweepy.API):
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
         self.api = tweepy.API(self.__auth, wait_on_rate_limit=True)
-        self.sa2_main16_df = load_sa2_data() 
+        self.sa2_main16_df = load_sa2_data()
         print("Harvester setup complete")
 
     def search_tweet(self):
@@ -29,10 +29,7 @@ class search(tweepy.API):
         start = '201801010000'
         end = '202204280000'
         label = 'development'
-        try:
-            status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
-        except:
-            time.sleep(5)
+        status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=20)
         for each in status:
             holder.append(each._json)
         return holder
@@ -61,13 +58,14 @@ class search(tweepy.API):
                 if coords is not None:
                     tweet_info['sa2'] = get_sa2_main16(coords, self.sa2_main16_df)
                 self.store_tweets(tweet_info)
+            time.sleep(1)
 
 
     def store_tweets(self, tweet):
         try:
             doc_id, doc_rev = self.db.save(tweet)
             print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
-        except DB.http.ResourceConflict: 
+        except DB.http.ResourceConflict:
             print(f"Document already present in database. Not updated")
 
 
