@@ -19,14 +19,14 @@ class search(tweepy.API):
         self.analyser = SentimentIntensityAnalyzer()
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
-        self.api = tweepy.API(self.__auth)
-        self.sa2_main16_df = load_sa2_data()
+        self.api = tweepy.API(self.__auth, wait_on_rate_limit=True)
+        self.sa2_main16_df = load_sa2_data() 
         print("Harvester setup complete")
 
     def search_tweet(self):
         holder = []
         query = 'place:melbourne'
-        start = '202201010000'
+        start = '201801010000'
         end = '202204280000'
         label = 'development'
         status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
@@ -36,6 +36,7 @@ class search(tweepy.API):
 
     def doc(self):
         while True:
+            print("Next batch of tweets:")
             tweets = self.search_tweet()
             for tweet in tweets:
                 tweet_info = dict()
@@ -47,6 +48,7 @@ class search(tweepy.API):
                 except (KeyError, AttributeError):
                     print("Tweet KeyError - using default tweet text")
                     text = tweet['text']
+                print(f"Tweet id: {tweet['id']}, date created: {tweet['created_at']}")
                 tweet_info['_id'] = str(tweet['id'])
                 tweet_info['type'] = 'version_2'
                 tweet_info['tweet'] = tweet
@@ -59,8 +61,12 @@ class search(tweepy.API):
 
 
     def store_tweets(self, tweet):
-        doc_id, doc_rev = self.db.save(tweet)
-        print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
+        try:
+            doc_id, doc_rev = self.db.save(tweet)
+            print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
+        except DB.http.ResourceConflict: 
+            print(f"Document already present in database. Not updated")
+
 
 
 def load_sa2_data():
@@ -100,3 +106,18 @@ def get_tweet_coordinates(tweet_doc):
     if hasCoordinates:
         return {"longitude": hasCoordinates['coordinates'][0], "latitude": hasCoordinates['coordinates'][1]}
 
+
+if __name__ == '__main__':
+    bear_token = INFO.BEAR_TOKEN
+    consumer_key = INFO.API_KEY
+    consumer_secret = INFO.KEY_SECRET
+    access_token = INFO.ACCESS_TOKEN
+    access_secret = INFO.TOKEN_SECRET
+
+    t = search(consumer_key, consumer_secret, access_token, access_secret)
+    print("Setup complete")
+    # coordinates for Melbourne based on a bounding box for the Greater Melbourne region
+    coordinates = [144.33363404800002, -38.50298801599996, 145.8784120140001, -37.17509899299995]
+
+    print("Searching tweets...")
+    t.doc()
