@@ -20,7 +20,7 @@ class tweet(tweepy.Stream):
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")
-        self.db = self.server['twitter']
+        self.db = self.server['twitter_new']
 
         self.analyser = SentimentIntensityAnalyzer()
         # load suburb data
