@@ -45,7 +45,7 @@ class tweet(tweepy.Stream):
         # store the document in the database as a dictionary with keys {tweet, sentiment, sa2}
         tweet_info = dict()
         tweet_info['_id'] = str(data['id'])
-        tweet_info['type'] = 'version_2'
+        tweet_info['type'] = 'stream'
         tweet_info['tweet'] = data
         sentiment = self.analyser.polarity_scores(text)
         tweet_info['sentiment'] = sentiment
@@ -60,7 +60,7 @@ class tweet(tweepy.Stream):
         try:
             doc_id, doc_rev = self.db.save(tweets)
             print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
-        except DB.http.ResourceConflict: 
+        except DB.http.ResourceConflict:
             print(f"Document already present in database. Not updated")
 
 

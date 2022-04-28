@@ -29,8 +29,18 @@ class search(tweepy.API):
         query = 'place:melbourne'
         start = '201801010000'
         end = '202204280000'
+        # label = 'SearchAPI'
         label = 'development'
-        status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=20)
+
+        status = tweepy.Cursor(self.api.search_full_archive,
+                label = label,
+                query=query,
+                fromDate= start,
+                toDate=end,
+                maxResults=20
+                ).items()
+
+        # status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
         for each in status:
             holder.append(each._json)
         return holder
@@ -51,7 +61,7 @@ class search(tweepy.API):
                     text = tweet['text']
                 print(f"Tweet id: {tweet['id']}, date created: {tweet['created_at']}")
                 tweet_info['_id'] = str(tweet['id'])
-                tweet_info['type'] = 'version_2'
+                tweet_info['type'] = 'search'
                 tweet_info['tweet'] = tweet
                 sentiment = self.analyser.polarity_scores(text)
                 tweet_info['sentiment'] = sentiment
@@ -59,7 +69,7 @@ class search(tweepy.API):
                 if coords is not None:
                     tweet_info['sa2'] = get_sa2_main16(coords, self.sa2_main16_df)
                 self.store_tweets(tweet_info)
-            time.sleep(1)
+            time.sleep(5)
 
 
     def store_tweets(self, tweet):
