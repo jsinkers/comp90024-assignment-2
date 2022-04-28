@@ -32,19 +32,21 @@ class tweet(tweepy.Stream):
         data = status._json
         print(f"Filtered tweet id: {data['id']}")
 
-        if data['extended_tweet']['full_text']:
-            text = data['extended_tweet']['full_text']
-        # TODO what exception is being caught here? I'm guessing KeyError?
-        # I would suggest replacing these try-catches with an if-else using "if 'key' in dict.keys():",
-        # maybe with a single outer try-except for KeyErrors if not caught by if-else
-        else:
-            try:
+        # Extract the text from the tweet
+        try:
+            if 'extended_tweet' in data.keys():
+                text = data['extended_tweet']['full_text']
+            elif 'full_text' in status.retweeted_status.extended_tweet.keys():
                 text = status.retweeted_status.extended_tweet['full_text']
-            except:
+            else: 
+                text = data['text']
+        except (KeyError, AttributeError):
+                print("Tweet KeyError - using default tweet text")
                 text = data['text']
 
         # store the document in the database as a dictionary with keys {tweet, sentiment, sa2}
         tweet_info = dict()
+        tweet_info['_id'] = str(data['id'])
         tweet_info['type'] = 'version_2'
         tweet_info['tweet'] = data
         sentiment = self.analyser.polarity_scores(text)
