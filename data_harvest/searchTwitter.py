@@ -29,7 +29,10 @@ class search(tweepy.API):
         start = '201801010000'
         end = '202204280000'
         label = 'development'
-        status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
+        try:
+            status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
+        except:
+            time.sleep(5)
         for each in status:
             holder.append(each._json)
         return holder
