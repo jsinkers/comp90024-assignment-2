@@ -1,4 +1,3 @@
-# TODO: unused import? I'm guessing there was a sleep in here somewhere. If no longer in use, would suggest you delete
 import time
 
 import tweepy
@@ -8,6 +7,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 
 import INFO
+
 
 # Twitter filter Stream API streamer using geolocation filtering for Melbourne
 class tweet(tweepy.Stream):
@@ -27,27 +27,28 @@ class tweet(tweepy.Stream):
         self.sa2_main16_df = load_sa2_data()
         print("Harvester setup complete")
 
-
     def on_status(self, status):  # get the tweets from tweeter
 
         data = status._json
         print(f"Filtered tweet id: {data['id']}")
 
+        # Extract the text from the tweet
         try:
-            text = data['extended_tweet']['full_text']
-        # TODO what exception is being caught here? I'm guessing KeyError? 
-        # I would suggest replacing these try-catches with an if-else using "if 'key' in dict.keys():", 
-        # maybe with a single outer try-except for KeyErrors if not caught by if-else
-        except:
-            try:
+            if 'extended_tweet' in data.keys():
+                text = data['extended_tweet']['full_text']
+            elif 'full_text' in status.retweeted_status.extended_tweet.keys():
                 text = status.retweeted_status.extended_tweet['full_text']
-            except:
+            else: 
+                text = data['text']
+        except (KeyError, AttributeError):
+                print("Tweet KeyError - using default tweet text")
                 text = data['text']
 
         # store the document in the database as a dictionary with keys {tweet, sentiment, sa2}
         tweet_info = dict()
+        tweet_info['_id'] = str(data['id'])
+        tweet_info['type'] = 'version_2'
         tweet_info['tweet'] = data
-
         sentiment = self.analyser.polarity_scores(text)
         tweet_info['sentiment'] = sentiment
 
@@ -61,22 +62,13 @@ class tweet(tweepy.Stream):
         doc_id, doc_rev = self.db.save(tweets)
         print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
 
-
-    def on_error(self, status):
-        if status == 420:
-            print("Status code 420 received - Enhance your calm - too many api calls")
-            # TODO: should there be a sleep here? also looks like on_limit might handle this specific case?
-            # see https://stackoverflow.com/questions/50289692/handle-420-response-code-returned-by-tweepy-api
-            # see https://docs.tweepy.org/en/stable/stream.html#tweepy.Stream.on_limit
-        else:
-            return False
-
+   
 
 # load Statistical Area 2 (SA2) data for the greater melbourne region from the specified shapefile
 def load_sa2_data():
     # TODO: this could be modified to use a GeoJSON file and have a smaller data file. May not be worth it
     # TODO: ideally this would be set as an environment variable? Will leave up to you to decide
-    # read the shape file 
+    # read the shape file
     sa2_data = "../data/1270055001_sa2_2016_aust_shape.zip"
     sa2_df = gpd.read_file(sa2_data)
     # filter to only include melbourne
@@ -88,11 +80,12 @@ def load_sa2_data():
 def get_sa2_main16(coordinates, sa2_main16_df):
     if coordinates is None:
         return None
-    
+
     point = Point([coordinates['longitude'], coordinates['latitude']])
     # TODO: this is inelegant and inefficient, but works. Refactor if you wish
     # check if point falls in the sa2 geometry
-    row_filter = sa2_main16_df.apply(lambda row: row['geometry'].contains(point) or row['geometry'].intersects(point), axis=1)
+    row_filter = sa2_main16_df.apply(lambda row: row['geometry'].contains(point) or row['geometry'].intersects(point),
+                                     axis=1)
     filtered_rows = sa2_main16_df[row_filter]
     if (filtered_rows.size == 0):
         return None
