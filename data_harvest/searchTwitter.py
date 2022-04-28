@@ -15,7 +15,7 @@ class search(tweepy.API):
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")
-        self.db = self.server['twitter']
+        self.db = self.server['twitter_new']
         self.analyser = SentimentIntensityAnalyzer()
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
