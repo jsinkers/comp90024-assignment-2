@@ -16,7 +16,7 @@ class search(tweepy.API):
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")
-        self.db = self.server['twitter']
+        self.db = self.server['twitter_new']
         self.analyser = SentimentIntensityAnalyzer()
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
@@ -30,7 +30,7 @@ class search(tweepy.API):
         start = '201801010000'
         end = '202204280000'
         label = 'development'
-        status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=100)
+        status = self.api.search_full_archive(label=label, query=query, fromDate=start, toDate=end, maxResults=20)
         for each in status:
             holder.append(each._json)
         return holder
@@ -59,6 +59,7 @@ class search(tweepy.API):
                 if coords is not None:
                     tweet_info['sa2'] = get_sa2_main16(coords, self.sa2_main16_df)
                 self.store_tweets(tweet_info)
+            time.sleep(1)
 
 
     def store_tweets(self, tweet):
