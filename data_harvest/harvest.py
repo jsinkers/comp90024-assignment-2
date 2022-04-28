@@ -59,8 +59,11 @@ class tweet(tweepy.Stream):
         self.store_tweets(tweet_info)
 
     def store_tweets(self, tweets):
-        doc_id, doc_rev = self.db.save(tweets)
-        print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
+        try:
+            doc_id, doc_rev = self.db.save(tweets)
+            print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
+        except DB.http.ResourceConflict: 
+            print(f"Document already present in database. Not updated")
 
    
 
