@@ -1,13 +1,10 @@
 import time
-
 import tweepy
 import couchdb as DB
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import geopandas as gpd
 from shapely.geometry import Point
-
-import INFO
-
+import INFO_1
 
 # Twitter filter Stream API streamer using geolocation filtering for Melbourne
 class tweet(tweepy.Stream):
@@ -16,7 +13,8 @@ class tweet(tweepy.Stream):
         self.__userName = 'admin'
         self.__passWord = 'password'
         # TODO: username, password, IP address, and ports are ideally environment variables
-        self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        # self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        self.__url = 'http://admin:password@localhost:5984/'
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")
@@ -38,7 +36,7 @@ class tweet(tweepy.Stream):
                 text = data['extended_tweet']['full_text']
             elif 'full_text' in status.retweeted_status.extended_tweet.keys():
                 text = status.retweeted_status.extended_tweet['full_text']
-            else: 
+            else:
                 text = data['text']
         except (KeyError, AttributeError):
                 print("Tweet KeyError - using default tweet text")
@@ -62,7 +60,7 @@ class tweet(tweepy.Stream):
         doc_id, doc_rev = self.db.save(tweets)
         print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
 
-   
+
 
 # load Statistical Area 2 (SA2) data for the greater melbourne region from the specified shapefile
 def load_sa2_data():
@@ -105,11 +103,11 @@ def get_tweet_coordinates(tweet_doc):
 
 
 if __name__ == '__main__':
-    bear_token = INFO.BEAR_TOKEN
-    consumer_key = INFO.API_KEY
-    consumer_secret = INFO.KEY_SECRET
-    access_token = INFO.ACCESS_TOKEN
-    access_secret = INFO.TOKEN_SECRET
+    bear_token = INFO_1.BEAR_TOKEN
+    consumer_key = INFO_1.API_KEY
+    consumer_secret = INFO_1.KEY_SECRET
+    access_token = INFO_1.ACCESS_TOKEN
+    access_secret = INFO_1.TOKEN_SECRET
 
     t = tweet(consumer_key, consumer_secret, access_token, access_secret)
     print("Setup complete")

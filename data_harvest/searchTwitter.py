@@ -1,5 +1,5 @@
 import tweepy
-import INFO
+import INFO_2
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import geopandas as gpd
 from shapely.geometry import Point
@@ -11,7 +11,8 @@ class search(tweepy.API):
         super(search, self).__init__()
         self.__userName = 'admin'
         self.__passWord = 'password'
-        self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        # self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        self.__url = 'http://admin:password@localhost:5984/'
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")
@@ -20,7 +21,7 @@ class search(tweepy.API):
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
         self.api = tweepy.API(self.__auth, wait_on_rate_limit=True)
-        self.sa2_main16_df = load_sa2_data() 
+        self.sa2_main16_df = load_sa2_data()
         print("Harvester setup complete")
 
     def search_tweet(self):
@@ -64,7 +65,7 @@ class search(tweepy.API):
         try:
             doc_id, doc_rev = self.db.save(tweet)
             print(f"Document stored in database: id: {doc_id}, rev: {doc_rev}")
-        except DB.http.ResourceConflict: 
+        except DB.http.ResourceConflict:
             print(f"Document already present in database. Not updated")
 
 
@@ -108,11 +109,11 @@ def get_tweet_coordinates(tweet_doc):
 
 
 if __name__ == '__main__':
-    bear_token = INFO.BEAR_TOKEN
-    consumer_key = INFO.API_KEY
-    consumer_secret = INFO.KEY_SECRET
-    access_token = INFO.ACCESS_TOKEN
-    access_secret = INFO.TOKEN_SECRET
+    bear_token = INFO_2.BEAR_TOKEN
+    consumer_key = INFO_2.API_KEY
+    consumer_secret = INFO_2.KEY_SECRET
+    access_token = INFO_2.ACCESS_TOKEN
+    access_secret = INFO_2.TOKEN_SECRET
 
     t = search(consumer_key, consumer_secret, access_token, access_secret)
     print("Setup complete")
