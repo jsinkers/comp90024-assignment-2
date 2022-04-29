@@ -1,5 +1,5 @@
 import tweepy
-import INFO
+import INFO_3
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import geopandas as gpd
 from shapely.geometry import Point
