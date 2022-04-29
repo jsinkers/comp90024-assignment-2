@@ -1,4 +1,4 @@
-# James
+# James - full_archive (unused); 30_day (unused)
 
 API_KEY='PMeWjRgq12eXble1VdCEXymDW'
 KEY_SECRET='U2hZOczdp4BazVfHKB655cBAlx1kvTmAAKWQk1c2TbuT9KEaLD'

@@ -13,8 +13,8 @@ class tweet(tweepy.Stream):
         self.__userName = 'admin'
         self.__passWord = 'password'
         # TODO: username, password, IP address, and ports are ideally environment variables
-        # self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
-        self.__url = 'http://admin:password@localhost:5984/'
+        self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        # self.__url = 'http://admin:password@localhost:5984/'
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
         print("Connected to server")

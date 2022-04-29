@@ -1,4 +1,4 @@
-# TODO: remove API keys from repo (bowen)
+# Bowen - full_archive (banned); 30_day (unused)
 API_KEY = 'AInNIjNXFURf7QO2dCUEBxE2I'
 KEY_SECRET = '48IucRkB4tPkjBB69qvMqBVDwiy4L0DI1jaZ2ltO1wQfP9bktk'
 ACCESS_TOKEN = '1512762444296638467-kwCgD4OKThWW5DV5P2f203G3XbbZue'

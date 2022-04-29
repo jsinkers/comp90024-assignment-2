@@ -4,9 +4,11 @@ RUN mkdir -p /usr/my_app
 
 WORKDIR /usr/my_app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY modules.txt ./
+RUN pip install --no-cache-dir -r modules.txt
 
 COPY . .
 
-CMD [ "/bin/sh", "-c", "python data_harvest/harvest.py" ]
+WORKDIR /usr/my_app/data_harvest
+
+CMD [ "/bin/sh", "-c", "python harvest.py" ]

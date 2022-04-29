@@ -1,4 +1,4 @@
-# Lige
+# Lige - full_archive (banned); 30_day (unused)
 
 API_KEY = 'nOXzn7O9fejVFqmAAwF95PPjk'
 KEY_SECRET = 'TidjSKZICNL89itFd3qCzCtvvOPDJISdnJtoiLt1o3eHeKgsa0'
