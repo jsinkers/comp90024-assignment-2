@@ -4,3 +4,4 @@
 **/openrc.sh
 .idea/
 **/__pycache__
+/data_harvest/INFO_*.py
