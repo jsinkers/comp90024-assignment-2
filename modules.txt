@@ -1,0 +1,7 @@
+nltk
+couchdb
+pandas
+tweepy
+vaderSentiment
+geopandas
+shapely

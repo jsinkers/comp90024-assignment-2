@@ -1,1 +1,7 @@
-/database/node_modules/
+/**/node_modules/
+**/.DS_STORE
+**/*.pem
+**/openrc.sh
+.idea/
+**/__pycache__
+/data_harvest/INFO_*.py
