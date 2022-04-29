@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, make_response, url_for
+from flask import Flask, jsonify, request, make_response, url_for, send_from_directory
 from flask_restful import Resource, Api, abort
 
 app = Flask(__name__)
@@ -16,10 +16,16 @@ def abort_if_scenario_doesnt_exist(scenario):
         abort(404, message="Todo {} doesn't exist".format(scenario))
 
 
+# Svelte app
 @app.route("/")
 def index():
-    # TODO: serve frontend app
-    return "<p>Hello, World!</p>"
+    return send_from_directory('../frontend/public', 'index.html')
+
+# serve static files for the Svelte app
+@app.route("/<path:path>")
+def home(path):
+    return send_from_directory('../frontend/public', path)
+
 
 class Analytics(Resource):
     def get(self):
