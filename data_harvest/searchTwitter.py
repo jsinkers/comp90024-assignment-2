@@ -5,7 +5,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import couchdb as DB
 
 # rename this import to reference the key file used
-import INFO_3 as INFO
+import INFO as INFO
 from sa2_data import *
 
 
