@@ -1,3 +1,5 @@
+import tweepy
+import INFO
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 # import geopandas as gpd
 from shapely.geometry import Point
@@ -25,36 +27,28 @@ class search(tweepy.API):
         print("Harvester setup complete")
 
     def search_tweet(self):
-
+        id_holder = []
         query = 'place:melbourne'
         start = '202203290600'
         label = '30days'
-        status = self.api.search_30_day(label=label, query=query, fromDate=start, maxResults=10,
-                                        )
-        responses = tweepy.Paginator(status)
-        return responses
+        status = tweepy.Cursor(self.api.search_30_day,
+                label = label,
+                query=query,
+                fromDate= start,
+                maxResults=10
+                ).pages()
 
-    def doc(self):
-
-        iter = 0
-        id_holder = []
-        while True:
-            iter += 1
-            new = 0
-            repeated = 0
-            print("{} search".format(iter))
-            responses = self.search_tweet()
-            for each in responses.method:
+        for each in status:
+            for tweet in each:
                 tweet_info = dict()
-                tweet = each._json
-                if tweet['id'] not in id_holder:
-                    new += 1
-                    id_holder.append(tweet['id'])
+                doc = tweet._json
+                if doc['id'] not in id_holder:
+                    id_holder.append(doc['id'])
                 else:
-                    repeated += 1
-            print("{} search, {} new data, {} repeated data".format(iter, new, repeated))
+                    print('exist')
+            print(len(id_holder))
 
-
+  
 if __name__ == '__main__':
     bear_token = INFO.BEAR_TOKEN
     consumer_key = INFO.API_KEY
@@ -68,4 +62,4 @@ if __name__ == '__main__':
     coordinates = [144.33363404800002, -38.50298801599996, 145.8784120140001, -37.17509899299995]
 
     print("Searching tweets...")
-    t.doc()
+    t.search_tweet()
