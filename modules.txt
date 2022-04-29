@@ -5,3 +5,6 @@ tweepy
 vaderSentiment
 geopandas
 shapely
+flask
+flask-restful
+gunicorn

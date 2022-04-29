@@ -1,5 +1,7 @@
 # COMP90024 Assignment 2: Livability in Melbourne
 
+- install python dependencies using `pip install -r modules.txt`
+ 
 ## Docker
 
 `Dockerfile` can be used to create a docker image of the twitter harvester
@@ -24,3 +26,10 @@ From this directory, to run the playbook, use:
   - `harvest.py`: uses Twitter filter streaming API
   - `searchTwitter.py`: uses Twitter 30 day search API 
 - configure info in `INFO.py`
+
+## Flask 
+
+- Directory `flask`
+- Serves the frontend and ReST API
+- to run the development server: `flask run`
+- alternatively can run with gunicorn from : `gunicorn -w 4 -b 0.0.0.0:5000 app:app`
