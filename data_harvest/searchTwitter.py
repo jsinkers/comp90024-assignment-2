@@ -22,7 +22,7 @@ class search(tweepy.API):
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         self.__auth.set_access_token(access_token, access_secret)
         self.api = tweepy.API(self.__auth, wait_on_rate_limit=True)
-        #self.sa2_main16_df = load_sa2_data()
+        self.sa2_main16_df = load_sa2_data()
         print("Harvester setup complete")
 
     def search_tweet(self):
