@@ -2,7 +2,8 @@ import tweepy
 import couchdb as DB
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-import INFO
+# rename this import to reference the key file used
+import INFO as INFO
 from sa2_data import *
 
 # Twitter filter Stream API streamer using geolocation filtering for Melbourne
@@ -10,13 +11,13 @@ class tweet(tweepy.Stream):
     def __init__(self, consumer_key, consumer_secret, access_token, access_secret):
         super(tweet, self).__init__(consumer_key, consumer_secret, access_token, access_secret)
         # CouchDB setup
-        self.__userName = 'admin'
-        self.__passWord = 'password'
-        self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        self.__userName = INFO.USERNAME
+        self.__passWord = INFO.PASSWORD
+        self.__url = f'http://{self.__userName}:{self.__passWord}@{INFO.IP_ADDR}:{INFO.PORT}/'
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
-        print("Connected to server")
         self.db = self.server['twitter_new']
+        print("Connected to server")
 
         # load suburb data
         self.sa2_main16_df = load_sa2_data()
@@ -53,7 +54,7 @@ class tweet(tweepy.Stream):
             else:
                 text = data['text']
         except (KeyError, AttributeError):
-            print("Tweet KeyError - using default tweet text")
+            print("Warning: Tweet KeyError - using default tweet text")
             text = data['text']
         return text
 

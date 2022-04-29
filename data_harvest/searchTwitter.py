@@ -4,7 +4,8 @@ import tweepy
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import couchdb as DB
 
-import INFO
+# rename this import to reference the key file used
+import INFO_3 as INFO
 from sa2_data import *
 
 
@@ -13,13 +14,13 @@ class search(tweepy.API):
     def __init__(self, consumer_key, consumer_secret, access_token, access_secret):
         super(search, self).__init__()
         # CouchDB setup
-        self.__userName = 'admin'
-        self.__passWord = 'password'
-        self.__url = 'http://' + self.__userName + ':' + self.__passWord + '@172.26.131.244:5984/'
+        self.__userName = INFO.USERNAME
+        self.__passWord = INFO.PASSWORD
+        self.__url = f'http://{self.__userName}:{self.__passWord}@{INFO.IP_ADDR}:{INFO.PORT}/'
         print("Connecting to server...")
         self.server = DB.Server(self.__url)
-        print("Connected to server")
         self.db = self.server['twitter_new']
+        print("Connected to server")
 
         # Twitter API setup
         self.__auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -44,8 +45,8 @@ class search(tweepy.API):
                                ).pages()
         for page in status:
             for tweet in page:
-                print(f"Tweet id: {tweet['id']}, date created: {tweet['created_at']}")
                 tweet = tweet._json
+                print(f"Tweet id: {tweet['id']}, date created: {tweet['created_at']}")
                 tweet_info = self.prepare_tweet_document(tweet)
                 self.store_tweets(tweet_info)
                 time.sleep(1)
