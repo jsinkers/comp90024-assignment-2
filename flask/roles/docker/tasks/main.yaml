@@ -58,3 +58,16 @@
     name: ['docker-compose']
     state: latest
 
+- name: create the docker group
+  group: 
+    name: docker
+    state: present
+- name: add user to the docker group
+  become: yes
+  user:
+    name: ubuntu
+    group: docker
+    append: yes
+
+
+

@@ -1,21 +1,10 @@
 ---
+# TODO: transfer files for Docker
 - name: Log into DockerHub
   docker_login:
     username: sinkers
     password: '{{ dockerhub_password }}'
-#- name: Pull docker image for flask app
-#  community.docker.docker_image:
-#    name: sinkers/comp90024-backend
-#    source: pull
-## see https://docs.ansible.com/ansible/2.5/modules/docker_container_module.html
-#- name: Restart docker image for flask app
-#  docker_container:
-#    name: flask-gunicorn
-#    image: sinkers/comp90024-backend
-#    state: started
-#    restart: yes
-#    ports: 8000:8000
-
+    email: sinclair.j@gmail.com
 # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_module.html#ansible-collections-community-docker-docker-compose-module
 - name: Tear down existing services
   community.docker.docker_compose:
