@@ -9,4 +9,4 @@ COUCHDB_USER = 'admin'
 # password for couchDB
 COUCHDB_PASSWORD = 'password'
 # database for tweets
-COUCHDB_TWITTER_DB = 'new_tweets'
+COUCHDB_TWITTER_DB = 'twitter_new'

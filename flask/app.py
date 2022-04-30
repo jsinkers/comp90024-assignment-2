@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, make_response, url_for, send_from_directory
 from flask_restful import Resource, Api, abort
 import couchdb as db
+import logging
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -30,7 +31,7 @@ def home(path):
 # Testing route
 @app.route("/twitter_database_info")
 def database_status():
-    return twitter_db.info()
+    return app.config['TWITTER_DB'].info()
 
 class Analytics(Resource):
     def get(self):
@@ -45,10 +46,15 @@ class Scenario(Resource):
 api.add_resource(Analytics, '/api/analytics/')
 api.add_resource(Scenario, '/api/analytics/<scenario_id>')
 
+
+# connect to database
+couchdb_url = f'http://{app.config["COUCHDB_USER"]}:{app.config["COUCHDB_PASSWORD"]}@{app.config["COUCHDB_IP"]}:{app.config["COUCHDB_PORT"]}/'
+app.logger.info("Connecting to couchDB...")
+couchdb_server = db.Server(couchdb_url)
+app.config['COUCHDB'] = couchdb_server
+app.config['TWITTER_DB'] = couchdb_server[app.config["COUCHDB_TWITTER_DB"]]
+app.logger.debug(app.config['TWITTER_DB'])
+app.logger.info("Connected to couchDB")
+
 if __name__ == "__main__":
-    # connect to database
-    couchdb_url = f'http://{app.config(COUCHDB_USER)}:{app.config(COUCHDB_PASSWORD)}@{app.config(COUCHDB_IP)}:{COUCHDB_PORT}/'
-    print("Connecting to server...")
-    couchdb_server = DB.Server(couchdb_url)
-    twitter_db = self.server[app.config(COUCHDB_TWITTER_DB)]
-    app.run(debug=app.config(DEBUG))
+    app.run(debug=app.config["DEBUG"])

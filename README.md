@@ -31,5 +31,13 @@ From this directory, to run the playbook, use:
 
 - Directory `flask`
 - Serves the frontend and ReST API
+- before running the development server you need to build the frontend
 - to run the development server: `flask run`
 - alternatively can run with gunicorn from : `gunicorn -w 4 -b 0.0.0.0:5000 app:app`
+
+## Frontend
+
+- Directory `frontend`
+- This is a `svelte` app
+- in `frontend` run `npm install` to install dependencies
+- to build the app run `npm run build`
