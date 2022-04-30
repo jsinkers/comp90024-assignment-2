@@ -4,10 +4,10 @@
 
 ### dependencies
 
-* couchdb-python
- - pip install couchdb
-* requests
- - pip install requests
+* couchdb-python  
+pip install couchdb
+* requests  
+pip install requests
 
 ### usage
 
