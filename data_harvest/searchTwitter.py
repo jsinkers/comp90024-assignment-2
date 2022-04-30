@@ -1,10 +1,11 @@
 import tweepy
-import INFO_3
+import INFO_4 as INFO
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import geopandas as gpd
 from shapely.geometry import Point
 import couchdb as DB
 import time
+from datetime import date
 
 class search(tweepy.API):
     def __init__(self, consumer_key, consumer_secret, access_token, access_secret):
@@ -23,11 +24,13 @@ class search(tweepy.API):
         self.__auth.set_access_token(access_token, access_secret)
         self.api = tweepy.API(self.__auth, wait_on_rate_limit=True)
         self.sa2_main16_df = load_sa2_data()
+        self.today = date.today()
         print("Harvester setup complete")
 
     def search_tweet(self):
         query = 'place:melbourne'
-        start = '202203290600'
+        date = int(self.today.strftime("%Y%m%d"))
+        start = str(date - 100) + "0000"
         label = '30days'
         status = tweepy.Cursor(self.api.search_30_day,
                                label=label,
@@ -56,15 +59,13 @@ class search(tweepy.API):
                 tweet_info['sentiment'] = sentiment
 
                 coords = get_tweet_coordinates(tweet)
-    
-    
+
                 if coords is not None:
                     tweet_info['sa2'] = get_sa2_main16(coords, self.sa2_main16_df)
-    
-                #print(tweet_info)
-                self.store_tweets(tweet_info)
-                time.sleep(1)
 
+                # print(tweet_info)
+                self.store_tweets(tweet_info)
+            time.sleep(1)
 
     def store_tweets(self, tweet):
         try:
@@ -74,12 +75,10 @@ class search(tweepy.API):
             print(f"Document already present in database. Not updated")
 
 
-
 def load_sa2_data():
-
     # read the shape file
-    sa2_data = "../data/1270055001_sa2_2016_aust_shape.zip"
-    sa2_df = gpd.read_file(sa2_data)
+    sa2_data = "aust_sa2.geojson"
+    sa2_df = gpd.read_file(sa2_data, driver='GeoJson')
     # filter to only include melbourne
     sa2_df = sa2_df[sa2_df['GCC_NAME16'] == 'Greater Melbourne']
     return sa2_df[['SA2_MAIN16', 'geometry']]
