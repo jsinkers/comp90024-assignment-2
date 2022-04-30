@@ -41,7 +41,7 @@ class search(tweepy.API):
         '''
         query = ""
         geo = '-37.840935,144.946457,100mi'
-        status = tweepy.Cursor(self.api.search_tweets, q=query, geocode=geo, count=20, until='2022-04-22').pages()
+        status = tweepy.Cursor(self.api.search_tweets, q=query, geocode=geo, count=20).pages()
         for each in status:
             for tweet in each:
                 tweet = tweet._json
