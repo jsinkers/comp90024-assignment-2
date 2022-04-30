@@ -6,6 +6,10 @@ instance_key_name: database
 # 2 CPU, 9GB RAM
 instance_flavor: uom.mse.2c9g
 
+# Instance
+instances:
+  - name: vm-4
+
 # Security group
 security_groups:
   - name: ssh
@@ -35,6 +39,3 @@ security_groups:
     port_range_max: 5984
     remote_ip_prefix: 0.0.0.0/0
 
-# Instance
-instances:
-  - name: vm-4
