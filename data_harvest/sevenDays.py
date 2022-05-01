@@ -83,8 +83,8 @@ class search(tweepy.API):
 
 def load_sa2_data():
     # read the shape file
-    sa2_data = "/root/aust_sa2.geojson"
-    sa2_df = gpd.read_file(sa2_data, driver='GeoJson')
+    sa2_data = "../data/1270055001_sa2_2016_aust_shape.zip"
+    sa2_df = gpd.read_file(sa2_data)
     # filter to only include melbourne
     sa2_df = sa2_df[sa2_df['GCC_NAME16'] == 'Greater Melbourne']
     return sa2_df[['SA2_MAIN16', 'geometry']]
