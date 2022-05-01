@@ -1,5 +1,12 @@
 ---
-# TODO: transfer files for Docker
+- name: Create flask directory
+  ansible.builtin.file:
+    path: ~/flask/
+    state: directory
+- name: Copy flask files to VM
+  ansible.builtin.copy:
+    src: ../../docker-compose.yml
+    dest: flask/docker-compose.yml
 - name: Log into DockerHub
   docker_login:
     username: sinkers
@@ -16,7 +23,7 @@
   register: output
 - ansible.builtin.debug:
     var: output
-- name: Run `docker-compose up` again
+- name: Run `docker-compose up` 
   community.docker.docker_compose:
     project_src: flask
     build: no
@@ -25,26 +32,3 @@
     var: output
 - ansible.builtin.assert:
     that: "not output.changed "
-- name: Stop all services
-  community.docker.docker_compose:
-    project_src: flask
-    build: no
-    stopped: yes
-  register: output
-- ansible.builtin.debug:
-    var: output
-- ansible.builtin.assert:
-    that:
-      - "not flask.flask_flask_1.state.running"
-
-- name: Restart services
-  community.docker.docker_compose:
-    project_src: flask
-    build: no
-    restarted: yes
-  register: output
-- ansible.builtin.debug:
-    var: output
-- ansible.builtin.assert:
-    that:
-      - "flask.flask_flask_1.state.running"
