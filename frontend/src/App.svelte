@@ -7,6 +7,4 @@
 
 <Tailwindcss />
 <Sidebar />
-<Map lat={-37.8136} lon={144.9631} zoom={10.7}/>
-
-
+<Map lat={-37.8136} lon={144.9631} zoom={10.7} />

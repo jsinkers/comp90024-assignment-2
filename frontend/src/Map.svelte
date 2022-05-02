@@ -73,8 +73,6 @@
 
 <style>
 	div {
-		width: 85%;
-		height: 100%;
-        margin: 0 auto;
+		@apply h-full w-11/12 absolute right-0 top-0;
 	}
 </style>
