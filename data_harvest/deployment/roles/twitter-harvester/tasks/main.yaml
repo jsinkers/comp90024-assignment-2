@@ -1,0 +1,30 @@
+---
+# run in docker container using docker-compose
+- name: Create twitter harvester directory
+  ansible.builtin.file:
+    path: ~/twitter-harvester/
+    state: directory
+- name: Copy twitter-harvester files to VM
+  ansible.builtin.copy:
+    src: ../../docker-compose.yml
+    dest: twitter-harvester/docker-compose.yml
+# https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_module.html#ansible-collections-community-docker-docker-compose-module
+- name: Tear down existing services
+  community.docker.docker_compose:
+    project_src: twitter-harvester
+    state: absent
+- name: Create and start services
+  community.docker.docker_compose:
+    project_src: twitter-harvester
+  register: output
+- ansible.builtin.debug:
+    var: output
+- name: Run `docker-compose up`
+  community.docker.docker_compose:
+    project_src: twitter-harvester
+    build: no
+  register: output
+- ansible.builtin.debug:
+    var: output
+- ansible.builtin.assert:
+    that: "not output.changed "
