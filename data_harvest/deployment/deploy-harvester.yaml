@@ -1,6 +1,6 @@
 - hosts: localhost
   vars_files:
-    - host_vars/flask.yaml
+    - host_vars/twitter-harvester.yaml
   gather_facts: true
   roles:
     - role: openstack-common
@@ -8,8 +8,6 @@
     - role: openstack-instance
 
 - hosts: COMP90024
-  vars_files:
-    - host_vars/flask.yaml
   vars:
     - ansible_user: ubuntu
     - ansible_ssh_private_key_file: ~/.ssh/database.pem
