@@ -72,5 +72,11 @@
     name: ubuntu
     group: docker
     append: yes
-
+- name: Ensure docker service is started
+  ansible.builtin.systemd:
+    state: started
+    name: docker
+- name: Sleep for 10 seconds
+  wait_for:
+    timeout: 10
 
