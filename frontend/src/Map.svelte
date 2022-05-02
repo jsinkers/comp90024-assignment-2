@@ -32,22 +32,46 @@
                 'source':'sa2',
                 'layout':{},
                 'paint':{
-                    'fill-color':'#0080ff', //blue color fill
-                    'fill-opacity':0.5
+					'fill-color': [
+						'interpolate',
+						['linear'],
+						['get', 'irsad_score'],
+						700,
+						'#F2F12D',
+						750,
+						'#EED322',
+						800,
+						'#E6B71E',
+						850,
+						'#DA9C20',
+						900,
+						'#CA8323',
+						950,
+						'#B86B25',
+						1000,
+						'#A25626',
+						1050,
+						'#8B4225',
+						1100,
+						'#723122'
+					],
+                    //'fill-color':'#0080ff', //blue color fill
+                    'fill-opacity':0.6
                 },
                 'filter': ['==', '$type', 'Polygon']
             });
-            map.addLayer({
-                'id': 'sa2-outline',
-                'type': 'line',
-                'source': 'sa2',
-                'layout': {},
-                'paint': {
-                    'line-color': '#000',
-                    'line-width': 3
-                },
-                'filter': ['==', '$type', 'Polygon']
-            });
+            // map.addLayer({
+            //     'id': 'sa2-outline',
+            //     'type': 'line',
+            //     'source': 'sa2',
+            //     'layout': {},
+            //     'paint': {
+            //         'line-color': '#000',
+            //         'line-width': 1
+            //     },
+            //     'filter': ['==', '$type', 'Polygon']
+            // });
+
         }, 2000);
 	}
 
