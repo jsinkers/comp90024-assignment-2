@@ -1,0 +1,43 @@
+---
+# Run flask via gunicorn
+- name: Copy flask files to VM
+  ansible.builtin.copy:
+    src: ../../../../flask/
+    dest: flask 
+- name: Copy frontend files to VM
+  ansible.builtin.copy:
+    src: ../../../frontend/public/
+    dest: frontend/public
+- name: install gunicorn
+  become: yes
+  ansible.builtin.apt:
+    name: ['gunicorn']
+    update_cache: yes
+
+- name: install dependencies
+  ansible.builtin.pip:
+    chdir: flask
+    requirements: requirements.txt
+- name: run gunicorn
+  community.general.gunicorn:
+    app: 'app:app'
+    chdir: /home/ubuntu/flask
+    conf: /home/ubuntu/flask/gunicorn.conf.py
+    pid: /home/ubuntu/flask/pidfile
+# - name: run gunicorn
+#   ansible.builtin.command: "/bin/bash gunicorn -D -c gunicorn.conf.py app:app"
+#   args:
+#     chdir: /home/ubuntu/flask
+#- name: change permissions on script to u+x
+#  ansible.builtin.file:
+#    path: /home/ubuntu/flask/run_flask_gunicorn.sh
+#    mode: u+x
+#- name: run gunicorn
+#  ansible.builtin.script: 
+#    cmd: run_flask_gunicorn.sh
+#    chdir: /home/ubuntu/flask
+
+  
+
+
+  

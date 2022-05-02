@@ -33,7 +33,11 @@ From this directory, to run the playbook, use:
 - Serves the frontend and ReST API
 - before running the development server you need to build the frontend
 - to run the development server: `flask run`
-- alternatively can run with gunicorn from : `gunicorn -w 4 -b 0.0.0.0:5000 app:app`
+- run with gunicorn using: `gunicorn -c gunicorn.conf.py app:app`
+  - access at `http://<ip address>:8000/`
+
+### Docker
+
 - docker image can be built from the project root as `docker build -f flask/Dockerfile sinkers/comp90024-backend .`
 - push the docker image using `sinkers/comp90024-backend`
 - docker compose can be run from the flask directory `docker-compose up`
