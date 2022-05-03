@@ -5,9 +5,8 @@
   roles:
     - role: openstack-common
     - role: openstack-security-group
-    - role: openstack-instance
 
-- hosts: COMP90024
+- hosts: database-2
   vars_files:
     - host_vars/flask.yaml
   vars:
@@ -15,9 +14,4 @@
     - ansible_ssh_private_key_file: ~/.ssh/database.pem
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   roles:
-    #- role: docker
-    #- role: flask
     - role: flask-2
-  #vars_prompt:
-  #  name: dockerhub_password
-  #  prompt: Enter dockerhub password for sinkers

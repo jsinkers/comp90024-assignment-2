@@ -1,4 +1,8 @@
 ---
+- name: Gather facts of remote host
+  ansible.builtin.setup:
+    gather_subset: all
+
 # Install dependencies on the host
 - name: Install pip
   become: yes
@@ -18,4 +22,4 @@
 - name: Build frontend
   command: npm run build
   args:
-    chdir: ../frontend
+    chdir: ../../frontend
