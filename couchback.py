@@ -149,6 +149,54 @@ class CouchInterface:
         data_str = json.dumps(data)
         return self._create_views(database, design_name, data_str, views_name)
 
+    def create_regex_view_combined(self, database: str, field: str, regexes: list, design_name: str, view_name: str="election_tweets"):
+        """
+        Similar with create_regex_view, and create_regex_views. However, we search tweets using all regex words in a single view.
+        """
+
+        design_name = '_design/' + design_name
+
+        regs_str = "["
+        for i, reg in enumerate(regexes):
+            regs_str += reg
+            regs_str += ","
+        regs_str = regs_str[:-1]
+        regs_str += "]"
+
+        map_fun = 'function (doc) {' + \
+                      'var regs = ' + regs_str + '; ' + \
+                      'var to_emit = false;' + \
+                        'if (' + field + '.coordinates){' + \
+                            'for (var i in regs) {' + \
+                                'if (regs[i].test(' + field + '.text)){' + \
+                                    'to_emit = true;' + \
+                                '}' + \
+                            '}' + \
+                            'if (to_emit && doc.sa2 && doc.sentiment.compound){' + \
+                                'emit(["election",doc.sa2], doc.sentiment.compound);' + \
+                            '}' + \
+                        '}' + \
+                    '}'
+
+        data = {'views': {view_name: {'map': map_fun}}}
+
+        print(requests.put(self.url + database + '/' + design_name, data=json.dumps(data)).json())
+        resp = requests.get(self.url + database + '/' + design_name + '/_view/' + view_name)
+        view = json.loads(resp.text)
+        return view
+
+    def grouping_results(self, db_name, design_doc, view_name):
+        """
+        a database has a design document and view under the path /db_name/_design/design_doc/_view/view_name
+        """
+        db = self.server[db_name]
+        path = design_doc + '/' + view_name
+        results = []
+        for item in db.view(path, group=True):
+            results.append((item.key, item.value))
+
+        return results
+
 
 class MapGenerator:
     def __init__(self):
@@ -230,6 +278,23 @@ class MapGenerator:
         return map_fun
 
 
+def test_historic_election_tweet():
+    # the keywords to filter out
+    election_keywords = ['/auspol/i', '/ausvotes/i', '/ausvotes2022/i', '/ausvotes22/i',
+                         '/ScottMorrison/i', '/Scott/i', '/Morrison/i', '/ScottMorrisonMP/i', '/election/i']
+
+    ci = CouchInterface(address='172.26.131.244', port='5984', username='admin', password='password')
+
+    if ("error" in ci.get_view("twitter_historic", "tweets", "election_tweets")):  # if view not exist
+        # create a new view
+        ret = ci.create_regex_view_combined('twitter_historic', 'doc.tweet', election_keywords, 'tweets',
+                                            'election_tweets')
+
+    # receiving a grouping result from the view
+    results = ci.grouping_results("twitter_historic", "tweets", "election_tweets")
+    print(results)
+
+
 if __name__ == '__main__':
     ci = CouchInterface(address='172.26.131.244', port='5984', username='admin', password='password')
 
@@ -242,6 +307,8 @@ if __name__ == '__main__':
     #                             ['filter_mel', 'filter_vote']
     #                             )
 
+    # test_historic_election_tweet()
+    
     mg = MapGenerator()
     mg.add_condition('tweet.text', 'contains', ['election', 'morrison', 'melbourne'])
     mg.add_condition('sa2', 'exists')
