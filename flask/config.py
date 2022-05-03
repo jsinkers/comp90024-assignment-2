@@ -9,4 +9,9 @@ COUCHDB_USER = 'admin'
 # password for couchDB
 COUCHDB_PASSWORD = 'password'
 # database for tweets
-COUCHDB_TWITTER_DB = 'twitter_new'
+COUCHDB_TWITTER_DB = "twitter_historic"
+# design doc name
+DESIGN_DOC = "tweets"
+# view name
+VIEW_FOR_ELECTION = "election_tweets"
+VIEW_FOR_SOCIAL = "social_tweets"
