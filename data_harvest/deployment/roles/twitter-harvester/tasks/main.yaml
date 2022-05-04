@@ -8,23 +8,12 @@
   ansible.builtin.copy:
     src: ../../docker-compose.yml
     dest: twitter-harvester/docker-compose.yml
-# https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_module.html#ansible-collections-community-docker-docker-compose-module
-# - name: Tear down existing services
-#   community.docker.docker_compose:
-#     project_src: twitter-harvester
-#     state: absent
-#- name: Create and start services
-#  community.docker.docker_compose:
-#    project_src: twitter-harvester
-#  register: output
-#- ansible.builtin.debug:
-#    var: output
 - name: set permissions on docker socket
   become: yes
   ansible.builtin.file:
     path: /run/docker.sock
     mode: '666'
-
+# https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_module.html#ansible-collections-community-docker-docker-compose-module
 - name: Run `docker-compose up`
   community.docker.docker_compose:
     project_src: twitter-harvester
