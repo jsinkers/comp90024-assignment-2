@@ -1,16 +1,27 @@
 --- 
 # Docker Installation 
 # Add a sleep to allow vm to get setup
-- name: Sleep for 20 seconds
+- name: Sleep for 60 seconds
   wait_for:
-    timeout: 20
+    timeout: 60
+#- name: Wait until the lock file is removed
+#  wait_for: 
+#    path: /var/lib/dpkg/lock-frontend
+#- name: Wait until the lock file is removed
+#  wait_for: 
+#    path: /var/lib/dpkg/lock-frontend
 - name: Install pip and neovim
   become: yes
   ansible.builtin.apt:
     name: ['python3-dev', 'python3-setuptools', 'python3-pip', 'neovim']
+    #register: apt_status
     state: latest
     install-recommends: no
     update_cache: yes
+    #lock_timeout: 240
+#  until: apt_status is success
+#  delay: 10
+#  retries: 10
 # sudo apt-get update && sudo apt-get install python3-dev python3-setuptools python-pip
 
 - name: Update pip
@@ -72,11 +83,15 @@
     name: ubuntu
     group: docker
     append: yes
+#- name: Sleep for 30 seconds
+#  wait_for:
+#    timeout: 30
 - name: Ensure docker service is started
+  become: yes
   ansible.builtin.systemd:
-    state: started
+    state: restarted
     name: docker
-- name: Sleep for 10 seconds
-  wait_for:
-    timeout: 10
+#- name: Sleep for 30 seconds
+#  wait_for:
+#    timeout: 30
 
