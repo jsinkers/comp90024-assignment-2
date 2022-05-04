@@ -24,7 +24,7 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'SA3_2021_AUST_SHP_GDA2020-greater-melb.geojson'
+                'data':'sa2-seifa-lang-small.geojson'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -71,8 +71,41 @@
             //     },
             //     'filter': ['==', '$type', 'Polygon']
             // });
-
+			map.addSource('tweets', {
+				'type': 'geojson',
+				'data': 'twitter-melb-filtered.geojson'
+			});
+			map.addLayer({
+				'id': 'tweets-points',
+				'type': 'circle',
+				'source': 'tweets',
+				'paint': {
+					'circle-radius': 5,
+					'circle-color': '#000',
+				}
+			});
         }, 2000);
+
+		map.on('click', 'tweets-points', (e) => {
+			const coordinates = e.features[0].geometry.coordinates.slice();
+			const description = e.features[0].properties.text;
+
+			while(Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			new mapbox.Popup()
+				.setLngLat(coordinates)
+				.setHTML(description)
+				.addTo(map);
+		});
+
+		map.on('mouseenter', 'tweets-points', () => {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', 'tweets-points', () => {
+			map.getCanvas().style.cursor = '';
+		});
 	}
 
 	onDestroy(() => {
@@ -97,6 +130,6 @@
 
 <style>
 	div {
-		@apply h-full w-11/12 absolute right-0 top-0;
+		@apply h-full w-11/12 absolute right-0 top-0 z-10;
 	}
 </style>
