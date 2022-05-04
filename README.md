@@ -1,5 +1,7 @@
 # COMP90024 Assignment 2: Livability in Melbourne
 
+- install python dependencies using `pip install -r modules.txt`
+ 
 ## Docker
 
 `Dockerfile` can be used to create a docker image of the twitter harvester
@@ -24,3 +26,25 @@ From this directory, to run the playbook, use:
   - `harvest.py`: uses Twitter filter streaming API
   - `searchTwitter.py`: uses Twitter 30 day search API 
 - configure info in `INFO.py`
+
+## Flask 
+
+- Directory `flask`
+- Serves the frontend and ReST API
+- before running the development server you need to build the frontend
+- to run the development server: `flask run`
+- run with gunicorn using: `gunicorn -c gunicorn.conf.py app:app`
+  - access at `http://<ip address>:8000/`
+
+### Docker
+
+- docker image can be built from the project root as `docker build -f flask/Dockerfile sinkers/comp90024-backend .`
+- push the docker image using `sinkers/comp90024-backend`
+- docker compose can be run from the flask directory `docker-compose up`
+
+## Frontend
+
+- Directory `frontend`
+- This is a `svelte` app
+- in `frontend` run `npm install` to install dependencies
+- to build the app run `npm run build`
