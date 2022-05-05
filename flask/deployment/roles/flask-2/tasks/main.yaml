@@ -52,14 +52,13 @@
 - name: copy nginx config
   become: yes
   ansible.builtin.copy:
-    - src: "{{ project_src }}/nginx.conf"
-    - dest: /etc/nginx/sites-available/flask.conf
-
+    src: "{{ playbook_dir }}/nginx.conf"
+    dest: /etc/nginx/sites-available/flask.conf
 - name: create symbolic link to nginx config
   become: yes
   ansible.builtin.file:
     src: /etc/nginx/sites-available/flask.conf
-    dest: /etc/nginx/sites-enabled
+    dest: /etc/nginx/sites-enabled/flask.conf
     state: link
 - name: Restart nginx
   become: yes
