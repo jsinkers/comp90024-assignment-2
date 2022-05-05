@@ -4,10 +4,10 @@
 - name: Sleep for 20 seconds
   wait_for:
     timeout: 20
-- name: Install pip and neovim
+- name: Install pip, neovim, nginx
   become: yes
   ansible.builtin.apt:
-    name: ['python3-dev', 'python3-setuptools', 'python3-pip', 'neovim']
+    name: ['python3-dev', 'python3-setuptools', 'python3-pip', 'neovim', 'nginx']
     state: latest
     update_cache: yes
 # sudo apt-get update && sudo apt-get install python3-dev python3-setuptools python-pip
@@ -49,3 +49,20 @@
     chdir: /home/ubuntu/flask
     conf: /home/ubuntu/flask/gunicorn.conf.py
     pid: /home/ubuntu/flask/pidfile
+- name: copy nginx config
+  become: yes
+  ansible.builtin.copy:
+    - src: "{{ project_src }}/nginx.conf"
+    - dest: /etc/nginx/sites-available/flask.conf
+
+- name: create symbolic link to nginx config
+  become: yes
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/flask.conf
+    dest: /etc/nginx/sites-enabled
+    state: link
+- name: Restart nginx
+  become: yes
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
