@@ -18,8 +18,19 @@
     name: ['pip', 'openstacksdk']
     state: latest
 # pip install --upgrade pip && pip install openstacksdk
-
+- name: Install frontend dependencies
+  command: npm install
+  args:
+    chdir: ../../frontend
 - name: Build frontend
   command: npm run build
   args:
     chdir: ../../frontend
+- name: Archive flask directory
+  community.general.archive:
+    path: "{{ playbook_dir }}/../../flask"
+    dest: ~/flask.tgz
+- name: Archive frontend directory
+  community.general.archive:
+    path: "{{ playbook_dir }}/../../frontend/public"
+    dest: ~/frontend-public.tgz

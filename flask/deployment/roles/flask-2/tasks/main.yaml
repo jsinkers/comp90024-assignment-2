@@ -16,14 +16,18 @@
     name: ['pip']
     state: latest
 # pip install --upgrade pip 
-- name: Copy flask files to VM
-  ansible.builtin.copy:
-    src: ../../../../flask/
-    dest: flask 
-- name: Copy frontend files to VM
-  ansible.builtin.copy:
-    src: ../../../../frontend/public/
-    dest: frontend/public
+- name: Create new frontend/public directory
+  ansible.builtin.file:
+    path: ~/frontend
+    state: directory
+- name: Copy, then unarchive flask files
+  ansible.builtin.unarchive:
+    src: ~/flask.tgz
+    dest: ~/
+- name: Copy, then unarchive frontend files
+  ansible.builtin.unarchive:
+    src: ~/frontend-public.tgz
+    dest: ~/frontend
 # on Ubuntu it's preferred to install gunicorn via apt rather than pip
 - name: install gunicorn
   become: yes
