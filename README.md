@@ -36,11 +36,21 @@ From this directory, to run the playbook, use:
 - run with gunicorn using: `gunicorn -c gunicorn.conf.py app:app`
   - access at `http://<ip address>:8000/`
 
+### Deployment
+
+- `flask/deployment`
+- To deploy flask on the database-2 virtual machine using Ansible run `./deploy-flask.sh`
+- You need to place your MRC `openRC.sh` in this directory
+- During deployment, the front end is built. The relevant files for the app are zipped and 
+  copied to the VM.  The VM deploys the app using nginx as the web server and gunicorn 
+  as the production server for the Flask app.
+
 ### Docker
 
 - docker image can be built from the project root as `docker build -f flask/Dockerfile sinkers/comp90024-backend .`
 - push the docker image using `sinkers/comp90024-backend`
 - docker compose can be run from the flask directory `docker-compose up`
+
 
 ## Frontend
 
