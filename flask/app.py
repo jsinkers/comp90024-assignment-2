@@ -148,6 +148,7 @@ class Sentiment(Resource):
         return analytics[scenario_id]
         # return results
 
+"/personal-info/<string:name>"
 
 api.add_resource(Analytics, '/api/analytics/')
 api.add_resource(Scenario, '/api/analytics/')
