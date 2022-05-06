@@ -81,7 +81,15 @@
 				'source': 'tweets',
 				'paint': {
 					'circle-radius': 5,
-					'circle-color': '#000',
+					'circle-color': ["rgb",
+						// red: if compound < 0 then red is 0
+						['*', 255, ['max', 0, ['get', 'compound'] ] ],
+						// green: if compound > 0 then green is 0
+						['*', -255, ['min', 0, ['get', 'compound'] ] ],
+						// blue:
+						40
+					],
+					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
         }, 2000);
