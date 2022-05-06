@@ -15,15 +15,15 @@
 
 	function load() {
 		const layers = [
-			'700-749',
-			'750-799',
-			'800-849',
-			'850-899',
-			'900-949',
-			'950-999',
-			'1000-1049',
-			'1050-1099',
-			'1100+'
+			"0-10%",
+			"10-20%",
+			"20-30%",
+			"30-40%",
+			"40-50%",
+			"50-60%",
+			"60-70%",
+			"70-80%",
+			">80%",
 		];
 		const colors = [
 			'#F2F12D',
@@ -57,28 +57,27 @@
 					'fill-color': [
 						'interpolate',
 						['linear'],
-						['get', 'irsad_score'],
-						700,
+						['get', 'prop_spk_other_lang'],
+						0,
 						'#F2F12D',
-						750,
+						0.1,
 						'#EED322',
-						800,
+						0.2,
 						'#E6B71E',
-						850,
+						0.3,
 						'#DA9C20',
-						900,
+						0.4,
 						'#CA8323',
-						950,
+						0.5,
 						'#B86B25',
-						1000,
+						0.6,
 						'#A25626',
-						1050,
+						0.7,
 						'#8B4225',
-						1100,
+						0.8,
 						'#723122'
 					],
-                    //'fill-color':'#0080ff', //blue color fill
-                    'fill-opacity':0.6
+                    'fill-opacity':0.7
                 },
                 'filter': ['==', '$type', 'Polygon']
             });
@@ -174,6 +173,7 @@
 	{/if}
 	<!--<div class='map-overlay' id='description'><h2>Diversity</h2><div id='pd'><p>Hover over a state!</p></div></div>-->
 	<div class='map-overlay' id='legend'>
+		<h2>Diversity</h2>
 		<style>
 			.legend-key {
 				display: inline-block;
@@ -216,11 +216,4 @@
 		width: 120px;
 	}
 
-	.legend-key {
-		display: inline-block;
-		border-radius: 20%;
-		width: 20px;
-		height: 10px;
-		margin-right: 5px;
-	}
 </style>
