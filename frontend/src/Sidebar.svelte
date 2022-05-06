@@ -8,13 +8,16 @@
 
 <Tailwindcss/>
 <main class="fixed top-0 left-0 h-screen w-1/12 m-0 flex flex-col bg-gray-600 text-white shadow-lg z-30">
-    <div class="fa-solid fa-bullhorn icon group">
-        <span class="tooltip hidden group-hover:block">Social Engagement</span>
+    <div class="fa-solid fa-home icon group" on:click={() => navigate("/")}>
+        <span class="tooltip hidden group-hover:block">Home</span>
     </div>
-    <div class="fa-solid fa-scale-unbalanced icon group">
+    <div class="fa-solid fa-scale-unbalanced icon group" on:click={() => navigate("/opportunity")}>
         <span class="tooltip hidden group-hover:block">Opportunity</span>
     </div>
-    <div class="fa-solid fa-user-group icon group">
+    <div class="fa-solid fa-bullhorn icon group" on:click={() => navigate("social-engagement")}>
+        <span class="tooltip hidden group-hover:block">Social Engagement</span>
+    </div>
+    <!--<div class="fa-solid fa-user-group icon group">
         <span class="tooltip hidden group-hover:block">Diversity Map</span>
     </div>
     <div class="fa-solid fa-person-booth icon group">
@@ -22,7 +25,7 @@
     </div>
     <div class="fa-solid fa-square-check icon group">
         <span class="tooltip hidden group-hover:block">Scott Morrison Approval Ratings</span>
-    </div>
+    </div>-->
 </main>
 
 <style>
