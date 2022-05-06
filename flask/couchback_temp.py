@@ -126,7 +126,7 @@ class CouchInterface:
         view = json.loads(resp.text)
         return view
 
-    def grouping_results(self, db_name, design_doc, view_name):
+    def grouped_results(self, db_name, design_doc, view_name):
         """
         a database has a design document and view under the path /db_name/_design/design_doc/_view/view_name
         """
@@ -134,6 +134,18 @@ class CouchInterface:
         path = design_doc + '/' + view_name
         results = []
         for item in db.view(path, group=True):
+            results.append({item.key[1] : item.value})
+
+        return results
+
+    def non_grouped_results(self, db_name, design_doc, view_name):
+        """
+        a database has a design document and view under the path /db_name/_design/design_doc/_view/view_name
+        """
+        db = self.server[db_name]
+        path = design_doc + '/' + view_name
+        results = []
+        for item in db.view(path):
             results.append({item.key[1] : item.value})
 
         return results
