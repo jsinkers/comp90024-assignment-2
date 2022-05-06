@@ -60,38 +60,50 @@
                 },
                 'filter': ['==', '$type', 'Polygon']
             });
-            // map.addLayer({
-            //     'id': 'sa2-outline',
-            //     'type': 'line',
-            //     'source': 'sa2',
-            //     'layout': {},
-            //     'paint': {
-            //         'line-color': '#000',
-            //         'line-width': 1
-            //     },
-            //     'filter': ['==', '$type', 'Polygon']
-            // });
-			map.addSource('tweets', {
-				'type': 'geojson',
-				'data': 'twitter-melb-filtered.geojson'
-			});
-			map.addLayer({
-				'id': 'tweets-points',
-				'type': 'circle',
-				'source': 'tweets',
-				'paint': {
-					'circle-radius': 5,
-					'circle-color': ["rgb",
-						// red: if compound < 0 then red is 0
-						['*', 255, ['max', 0, ['get', 'compound'] ] ],
-						// green: if compound > 0 then green is 0
-						['*', -255, ['min', 0, ['get', 'compound'] ] ],
-						// blue:
-						40
-					],
-					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
-				}
-			});
+            map.addLayer({
+                'id': 'sa2-outline',
+                'type': 'line',
+                'source': 'sa2',
+                'layout': {},
+                'paint': {
+                    'line-color': '#000',
+                    'line-width': 1
+                },
+                'filter': ['==', '$type', 'Polygon']
+            });
+			map.loadImage(
+				'2021 Twitter logo - white.png',
+				(error, image) => {
+				if (error) throw error;
+				// Add the image to the map style.
+				map.addImage('tweet', image);
+				map.addSource('tweets', {
+					'type': 'geojson',
+					'data': 'twitter-melb-filtered.geojson'
+				});
+				map.addLayer({
+					'id': 'tweets-points',
+					'type': 'symbol',
+					'source': 'tweets',
+					'layout': {
+						'icon-image': 'tweet',
+						'icon-size': 0.015,
+						'icon-allow-overlap': true
+					},
+					'paint': {
+						'circle-radius': 5,
+						'circle-color': ["rgb",
+							// red: if compound < 0 then red is 0
+							['*', 255, ['max', 0, ['get', 'compound'] ] ],
+							// green: if compound > 0 then green is 0
+							['*', -255, ['min', 0, ['get', 'compound'] ] ],
+							// blue:
+							40
+						],
+						'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
+					 }
+				});
+				});
         }, 2000);
 
 		map.on('click', 'tweets-points', (e) => {
