@@ -14,7 +14,7 @@
 	let map;
 
 	function load() {
-		const layers = [
+		const choropleth_layers = [
 			"0-10%",
 			"10-20%",
 			"20-30%",
@@ -25,7 +25,7 @@
 			"70-80%",
 			">80%",
 		];
-		const colors = [
+		const choropleth_colors = [
 			'#F2F12D',
 			'#EED322',
 			'#E6B71E',
@@ -36,6 +36,8 @@
 			'#8B4225',
 			'#723122'
 		];
+		const sentiment_layers = ["Negative", "Neutral", "Positive"];
+		const sentiment_colors = ["#FF0040", "#000040", "#00FF40"]
 		map = new mapbox.Map({
 			container,
 			style: 'mapbox://styles/mapbox/streets-v11',
@@ -137,9 +139,9 @@
 			map.getCanvas().style.cursor = '';
 		});
 		// create legend
-		const legend = document.getElementById('legend');
-		layers.forEach((layer, i) => {
-			const color = colors[i];
+		const legend_choropleth = document.getElementById('legend-choropleth');
+		choropleth_layers.forEach((layer, i) => {
+			const color = choropleth_colors[i];
 			const item = document.createElement('div');
 			const key = document.createElement('span');
 			key.className = 'legend-key';
@@ -149,7 +151,21 @@
 			value.innerHTML = `${layer}`;
 			item.appendChild(key);
 			item.appendChild(value);
-			legend.appendChild(item);
+			legend_choropleth.appendChild(item);
+		});
+		const legend_sentiment = document.getElementById('legend-sentiment');
+		sentiment_layers.forEach((layer, i) => {
+			const color = sentiment_colors[i];
+			const item = document.createElement('div');
+			const key = document.createElement('span');
+			key.className = 'legend-key';
+			key.style.backgroundColor = color;
+
+			const value = document.createElement('span');
+			value.innerHTML = `${layer}`;
+			item.appendChild(key);
+			item.appendChild(value);
+			legend_sentiment.appendChild(item);
 		});
 	}
 
@@ -172,8 +188,7 @@
 		<slot />
 	{/if}
 	<!--<div class='map-overlay' id='description'><h2>Diversity</h2><div id='pd'><p>Hover over a state!</p></div></div>-->
-	<div class='map-overlay' id='legend'>
-		<h2>Diversity</h2>
+	<div class="map-overlay" id="legend">
 		<style>
 			.legend-key {
 				display: inline-block;
@@ -182,8 +197,13 @@
 				height: 10px;
 				margin-right: 5px;
 			}
-
 		</style>
+		<div id='legend-choropleth'>
+			<h2>Diversity</h2>
+		</div>
+		<div id='legend-sentiment'>
+			<h2>Sentiment</h2>
+		</div>
 	</div>
 </div>
 
@@ -211,9 +231,21 @@
 		padding: 10px;
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 		line-height: 18px;
-		height: 200px;
+		height: min-content;
 		margin-bottom: 40px;
 		width: 120px;
+	}
+	#legend-choropleth {
+		position: relative;
+		height: min-content;
+	}
+	#legend-sentiment {
+		position: relative;
+		height: min-content;
+	}
+
+	h2 {
+		font-weight: bold;
 	}
 
 </style>
