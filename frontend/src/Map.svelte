@@ -14,6 +14,28 @@
 	let map;
 
 	function load() {
+		const layers = [
+			'700-749',
+			'750-799',
+			'800-849',
+			'850-899',
+			'900-949',
+			'950-999',
+			'1000-1049',
+			'1050-1099',
+			'1100+'
+		];
+		const colors = [
+			'#F2F12D',
+			'#EED322',
+			'#E6B71E',
+			'#DA9C20',
+			'#CA8323',
+			'#B86B25',
+			'#A25626',
+			'#8B4225',
+			'#723122'
+		];
 		map = new mapbox.Map({
 			container,
 			style: 'mapbox://styles/mapbox/streets-v11',
@@ -115,6 +137,21 @@
 		map.on('mouseleave', 'tweets-points', () => {
 			map.getCanvas().style.cursor = '';
 		});
+		// create legend
+		const legend = document.getElementById('legend');
+		layers.forEach((layer, i) => {
+			const color = colors[i];
+			const item = document.createElement('div');
+			const key = document.createElement('span');
+			key.className = 'legend-key';
+			key.style.backgroundColor = color;
+
+			const value = document.createElement('span');
+			value.innerHTML = `${layer}`;
+			item.appendChild(key);
+			item.appendChild(value);
+			legend.appendChild(item);
+		});
 	}
 
 	onDestroy(() => {
@@ -125,9 +162,9 @@
 <!-- this special element will be explained in a later section -->
 <svelte:head>
 	<link
-		rel="stylesheet"
-		href="https://unpkg.com/mapbox-gl/dist/mapbox-gl.css"
-		on:load={load}
+			rel="stylesheet"
+			href="https://unpkg.com/mapbox-gl/dist/mapbox-gl.css"
+			on:load={load}
 	/>
 </svelte:head>
 
@@ -135,10 +172,55 @@
 	{#if map}
 		<slot />
 	{/if}
+	<!--<div class='map-overlay' id='description'><h2>Diversity</h2><div id='pd'><p>Hover over a state!</p></div></div>-->
+	<div class='map-overlay' id='legend'>
+		<style>
+			.legend-key {
+				display: inline-block;
+				border-radius: 20%;
+				width: 20px;
+				height: 10px;
+				margin-right: 5px;
+			}
+
+		</style>
+	</div>
 </div>
 
 <style>
 	div {
 		@apply h-full w-11/12 absolute right-0 top-0 z-10;
+	}
+
+	/**
+	* Set rules for how the map overlays
+	* (information box and legend) will be displayed
+	* on the page. */
+	.map-overlay {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		background: #fff;
+		margin-right: 20px;
+		font-family: Arial, sans-serif;
+		overflow: auto;
+		border-radius: 3px;
+	}
+
+	#legend {
+		padding: 10px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		line-height: 18px;
+		height: 200px;
+		margin-bottom: 40px;
+		width: 120px;
+	}
+
+	.legend-key {
+		display: inline-block;
+		border-radius: 20%;
+		width: 20px;
+		height: 10px;
+		margin-right: 5px;
 	}
 </style>
