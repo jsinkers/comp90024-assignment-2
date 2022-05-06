@@ -1,6 +1,9 @@
 <script>
     import Tailwindcss from './Tailwindcss.svelte';
     import SidebarIcon from './SidebarIcon.svelte';
+    import { useNavigate } from "svelte-navigator";
+
+    const navigate = useNavigate();
 </script>
 
 <Tailwindcss/>

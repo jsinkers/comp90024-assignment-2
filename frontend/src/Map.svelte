@@ -48,7 +48,7 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'sa2-seifa-lang-small.geojson'
+                'data':'/sa2-seifa-lang-small.geojson'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -97,7 +97,7 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				'data': 'twitter-melb-filtered.geojson'
+				'data': '/twitter-melb-filtered.geojson'
 			});
 			map.addLayer({
 				'id': 'tweets-points',
