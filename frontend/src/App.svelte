@@ -5,6 +5,7 @@
     import Landing from './Landing.svelte';
     import Landing2 from './Landing2.svelte';
     import Opportunity from './Opportunity.svelte';
+    import SocialEngagement from './SocialEngagement.svelte';
 
     export let name;
     import {Router, Route, Link} from 'svelte-navigator';
@@ -39,7 +40,9 @@
                     </Route>
                 </Route>
                 <Route path="social-engagement/*">
-                    <h1>Opportunity</h1>
+                    <Route path="/">
+                        <SocialEngagement/>
+                    </Route>
                     <Route path="/map">
                         <!-- TODO: create different map/parametrise existing component -->
                         <Map lat={-37.8136} lon={144.9631} zoom={9} />
@@ -50,7 +53,10 @@
                 </Route>
                 <Route path="about">
                     <!--TODO -->
-
+                    Developed for COMP90024 by
+                    <ul>
+                        <li></li>
+                    </ul>
                 </Route>
             </div>
         </main>
