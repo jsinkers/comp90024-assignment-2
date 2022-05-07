@@ -5,17 +5,15 @@
 
 <div class="container">
 	<div class="flex-item">
-		<h1>Tweet counts for different election issues</h1>
 		<div class="chart">
 			<!-- TODO: bar chart -->
-			<BarChart/>
+			<BarChart title="Tweet count by election issue" variable="count"/>
 		</div>
 	</div>
 	<div class="flex-item">
-		<h1>Mean tweet sentiment by election issue</h1>
 		<div class="chart">
 			<!-- TODO: bar chart -->
-			<BarChart/>
+			<BarChart title="Mean tweet sentiment by election issue" variable="compound"/>
 		</div>
 	</div>
 </div>

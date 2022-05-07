@@ -1,18 +1,43 @@
 <script>
 	// based on https://svelte.dev/examples/bar-chart
 	import { scaleLinear } from 'd3-scale';
+	// title to display on the chart
+	export let title;
+	// data variable of interest
+	export let variable;
 
 	const points = [
-		{ year: 1990, birthrate: 16.7 },
-		{ year: 1995, birthrate: 14.6 },
-		{ year: 2000, birthrate: 14.4 },
-		{ year: 2005, birthrate: 14 },
-		{ year: 2010, birthrate: 13 },
-		{ year: 2015, birthrate: 12.4 }
+		{ issue: "health", count: 200, compound: -0.1},
+		{ issue: "economy", count: 250, compound: 0.2},
+		{ issue: "childcare",count: 123, compound: 0.3},
+		{ issue: "housing", count: 54, compound: 0.2},
+		{ issue: "tax cuts", count: 25, compound: -.3},
+		{ issue: "aged care", count: 76, compound: -0.5}
 	];
 
-	const xTicks = [1990, 1995, 2000, 2005, 2010, 2015];
-	const yTicks = [0, 5, 10, 15, 20];
+	// GET /api/analytics/socioeconomic/{election_issue}/summary
+	//const xTicks = ["health", "economy", "childcare", "housing", "tax cuts", "aged care"];
+	let xTicks = [];
+	for (let i = 0; i < points.length; i++) {
+		xTicks.push(points[i].issue)
+	}
+	console.log(xTicks);
+	let yTicks;
+	let ys = [];
+	if (variable === 'compound') {
+		yTicks = [-1, -0.5, 0, 0.5, 1];
+		for (let i = 0; i < points.length; i++) {
+			ys.push(points[i].compound)
+		}
+	} else if (variable === 'count') {
+		yTicks = [0, 100, 200, 300, 400];
+		for (let i = 0; i < points.length; i++) {
+			ys.push(points[i].count)
+		}
+	}
+	console.log(yTicks);
+	console.log(Math.min.apply(null, yTicks));
+
 	const padding = { top: 20, right: 15, bottom: 20, left: 25 };
 
 	let width = 500;
@@ -27,23 +52,26 @@
 			.range([padding.left, width - padding.right]);
 
 	$: yScale = scaleLinear()
-			.domain([0, Math.max.apply(null, yTicks)])
+			.domain([Math.min.apply(null, yTicks), Math.max.apply(null, yTicks)])
 			.range([height - padding.bottom, padding.top]);
 
 	$: innerWidth = width - (padding.left + padding.right);
-	$: barWidth = innerWidth / xTicks.length;
+	$: barWidth = innerWidth / xTicks.length - 10;
+
+	console.log(width);
 </script>
 
-<h2>US birthrate by year</h2>
+<h2>{title}</h2>
 
-<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
+<!--<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>-->
+<div class="chart" bind:clientHeight={height}>
 	<svg>
 		<!-- y axis -->
 		<g class="axis y-axis">
 			{#each yTicks as tick}
 				<g class="tick tick-{tick}" transform="translate(0, {yScale(tick)})">
 					<line x2="100%"></line>
-					<text y="-4">{tick} {tick === 20 ? ' per 1,000 population' : ''}</text>
+					<text y="-4">{tick}</text>
 				</g>
 			{/each}
 		</g>
@@ -52,18 +80,18 @@
 		<g class="axis x-axis">
 			{#each points as point, i}
 				<g class="tick" transform="translate({xScale(i)},{height})">
-					<text x="{barWidth/2}" y="-4">{width > 380 ? point.year : formatMobile(point.year)}</text>
+					<text x="{barWidth/2}" y="-4">{point.issue}</text>
 				</g>
 			{/each}
 		</g>
 
 		<g class='bars'>
-			{#each points as point, i}
+			{#each ys as point, i}
 				<rect
 						x="{xScale(i) + 2}"
-						y="{yScale(point.birthrate)}"
-						width="{barWidth - 4}"
-						height="{yScale(0) - yScale(point.birthrate)}"
+						y="{Math.min(yScale(point), yScale(0))}"
+						height="{Math.abs(yScale(0)-yScale(point))}"
+						width="{barWidth}"
 				></rect>
 			{/each}
 		</g>
@@ -85,6 +113,7 @@
 		position: relative;
 		width: 100%;
 		height: 200px;
+		overflow: visible;
 	}
 
 	.tick {
