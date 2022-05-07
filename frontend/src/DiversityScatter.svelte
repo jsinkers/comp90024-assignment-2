@@ -1,37 +1,80 @@
 <!-- based on https://svelte.dev/examples/scatterplot-->
 <script>
     import { onMount } from 'svelte';
-    import { scaleLinear } from 'd3-scale';
+    import { axisLeft, axisBottom, scaleLinear } from 'd3-scale';
+    import {json} from 'd3';
 
-    import data from "./data.js";
-    let points = data.a;
+    let data_url = "/sa2-diversity-sentiment-fit.json";
+    let dataset;
+    //let data_url = 'http://172.26.134.62/api/analytics/diversity/sentiment/diversity/'
+
+    let points = [];
 
     let svg;
-    let width = 500;
-    let height = 200;
+    let margin = {top: 10, right: 30, bottom: 30, left: 60};
+    let width = 460 - margin.left - margin.right;
+    let height = 400 - margin.top - margin.bottom;
 
     const padding = { top: 20, right: 40, bottom: 40, left: 25 };
 
-    $: xScale = scaleLinear()
-        .domain([0, 20])
-        .range([padding.left, width - padding.right]);
+    var xScale = scaleLinear()
+        .domain([0, 1])
+        .range([0, width]);
 
-    $: yScale = scaleLinear()
-        .domain([0, 12])
-        .range([height - padding.bottom, padding.top]);
+    var yScale = scaleLinear()
+        .domain([-1, 1])
+        .range([height, 0]);
 
     $: xTicks = width > 180 ?
-        [0, 4, 8, 12, 16, 20] :
-        [0, 10, 20];
+        [0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.100] : [0, 0.5, 1];
 
     $: yTicks = height > 180 ?
-        [0, 2, 4, 6, 8, 10, 12] :
-        [0, 4, 8, 12];
+        [-1, -0.5, 0, 0.5, 1] :
+        [-1, 0, 1];
 
-    onMount(resize);
+    onMount(() => {
+        console.log(dataset);
+        resize();
+        console.log(svg);
+
+        // Add X axis
+        let x = scaleLinear()
+            .domain([0, 1])
+            .range([ 0, width ]);
+        svg.append("g")
+            //.attr("transform", "translate(-1," + height + ")")
+            .call(axisBottom(x));
+
+        // Add Y axis
+        let y = scaleLinear()
+            .domain([-1, 1])
+            .range([ height, 0]);
+        svg.append("g")
+            .call(axisLeft(y));
+    });
 
     function resize() {
         ({ width, height } = svg.getBoundingClientRect());
+    }
+
+    async function fetchData() {
+        await json(data_url).then((dataset) => {
+            //     console.log(dataset)
+            //     svg.append("g")
+            //         .selectAll("dot")
+            //         .data(dataset)
+            //         .enter()
+            //         .append("circle")
+            //             .attr("cx", function (d) {return x(d.prop_spk_other_lang);})
+            //             .attr("cy", function (d) {return y(d.sentiment);})
+            //             .attr("r", 1.5)
+            for (let i = 0; i < dataset.compound.length; i++) {
+                let point = {'compound': dataset.compound[i], 'prop_spk_other_lang': dataset.prop_spk_other_lang[i]}
+                points.push(point);
+            }
+            console.log(points);
+        });
+        return points;
     }
 </script>
 
@@ -39,6 +82,7 @@
 
 <svg bind:this={svg}>
     <!-- y axis -->
+<!--
     <g class='axis y-axis'>
         {#each yTicks as tick}
             <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
@@ -47,8 +91,10 @@
             </g>
         {/each}
     </g>
+-->
 
     <!-- x axis -->
+<!--
     <g class='axis x-axis'>
         {#each xTicks as tick}
             <g class='tick' transform='translate({xScale(tick)},0)'>
@@ -57,18 +103,32 @@
             </g>
         {/each}
     </g>
+-->
 
     <!-- data -->
-    {#each points as point}
-        <circle cx='{xScale(point.x)}' cy='{yScale(point.y)}' r='5'/>
-    {/each}
+    {#await fetchData()}
+        <p>loading></p>
+    {:then points}
+        {#each points as point}
+            <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='5'/>
+        {/each}
+    {:catch error}
+        <p>{error.message}</p>
+    {/await}await
+
 </svg>
 
 <style>
+    div {
+        /*@apply h-full w-11/12 absolute right-0 top-0 z-10;*/
+        width: 100%;
+        height: 100%;
+    }
+
     svg {
-        width: 50%;
-        height: 50%;
-        float: left;
+        width: 100%;
+        height: 100%;
+        /*float: left;*/
     }
 
     circle {
