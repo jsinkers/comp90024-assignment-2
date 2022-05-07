@@ -7,6 +7,7 @@
     export let name;
     import {Router, Route, Link} from 'svelte-navigator';
     import DiversityScatter from "./DiversityScatter.svelte";
+    import Line from "svelte-chartjs/src/Line.svelte"
 </script>
 
 <Tailwindcss />
@@ -34,6 +35,7 @@
                         <div class="chart">
                             <h2>Plot</h2>
                             <DiversityScatter/>
+                            <!--<Line data={...} />-->
                         </div>
                     </Route>
                 </Route>
