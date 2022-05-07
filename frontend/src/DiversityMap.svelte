@@ -208,9 +208,11 @@
 </div>
 
 <style>
+
 	div {
 		@apply h-full w-11/12 absolute right-0 top-0 z-10;
 	}
+
 
 	/**
 	* Set rules for how the map overlays
