@@ -6,9 +6,11 @@ from couchback_temp import CouchInterface
 
 # for data preprocessing
 import pandas as pd
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 import geopandas as gpd
 import json
+from datetime import datetime
+from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -31,7 +33,7 @@ def abort_if_scenario_doesnt_exist(scenario):
         abort(404, message="Todo {} doesn't exist".format(scenario))
 
 def join_languages_and_polygons(languages, polygons):
-    # create df for both query outputs, join them, and export geojson string
+    # create df for both query outputs, join them, and export as geojson (here use dict rather than string)
 
     # preprocess the first query output
     for output in languages:
@@ -68,8 +70,53 @@ def join_languages_and_polygons(languages, polygons):
     merged_df = languages_df.merge(polygons_df, on="sa2")
     polygon_gdf = gpd.GeoDataFrame(merged_df, geometry=merged_df["geometry"])
 
-    # convert to json string
+    # convert to (geo)json string and then load back to dict
     return json.loads(polygon_gdf.to_json())
+
+def tweets_to_geojson(valid_tweets):
+    ## format a list of tweets queried from database to geojson (here use dict rather than string)
+
+    ## get a list of re-structured tweet dict / json object
+    tweets = []
+    for tweet in valid_tweets:
+        value = list(tweet.values())[0]
+
+        # convert tweet timestamp to python datatime
+        # e.g. 'Sun Aug 03 08:25:21 +0000 2014' to 2014-08-03 08:25:21
+        dtime = value['time']
+        new_dtime = datetime.strftime(datetime.strptime(dtime,'%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
+
+        # convert to a point object
+        coord = value['coord']
+        coord = Point(coord)
+
+        tweets.append({"compound":value['compound'],
+        "created_at":new_dtime, "text":value['text'], "geometry":coord})
+
+    ## convert to dataframe
+    tweets_df = pd.DataFrame(tweets); tweets_df.head()
+    ## convert to geopandas dataframe
+    tweets_gdf = gpd.GeoDataFrame(tweets_df, geometry=tweets_df["geometry"])
+    # convert to (geo)json string and then load back to dict
+    return json.loads(tweets_gdf.to_json())
+
+def language_proportion_dict(sa2_languages):
+    ## Build a dict for language proportion using sa2 code as keys
+    ## Convert [{'206011105': {'Proportion': 0.29843663941024445}}, {'206011106': {'Proportion': 0.2914498871110239}}]
+    ## To {'206011105': 0.29843663941024445, '206011106': 0.2914498871110239}
+    lang_prop_dict = {}
+    for output in sa2_languages:
+        # get the initial key-value pair
+        sa2 = list(output.keys())[0]
+        value = list(output.values())[0]
+
+        if 'Proportion' in value:
+            prop = value["Proportion"]
+
+        # add to dict
+        lang_prop_dict[sa2] = prop
+    return lang_prop_dict
+
 
 # Svelte app
 @app.route("/")
@@ -99,10 +146,14 @@ class Tweets(Resource):
     # { "type": "Feature", “created_at”: xyz,
     #   "properties": { "compound": -0.5362, "text": "#auspol tweets",},
     #   "geometry": { "type": "Point", "coordinates": [ 144.95379890000001, -37.7740309 ] } }
+    def get(self):
+        # initialize a CouchInterface object to retrive data from couchdb
+        ci = create_couch_interface()
 
-    # initialize a CouchInterface object to retrive data from couchdb
-    ci = create_couch_interface()
-
+        ci = CouchInterface(address='172.26.134.62', port='5984', username='admin', password='password')
+        valid_tweets = ci.non_grouped_results(db_name="twitter_historic",
+        design_doc="tweets", view_name="election_tweets")
+        return tweets_to_geojson(valid_tweets)
 
 class Language(Resource):
     # Return geojson format:
@@ -120,11 +171,14 @@ class Language(Resource):
         return join_languages_and_polygons(sa2_languages, sa2_polygons)
 
 class Sentiment(Resource):
+    # Return a dict (miniature dataframe):
+    # {'sa2':sa2s, ‘mean_compound’: list, 'count':counts, ‘prop_spk_other_lang’: list}
     def get(self, scenario_id):
         abort_if_scenario_doesnt_exist(scenario_id)
-
         # initialize a CouchInterface object to retrive data from couchdb
         ci = create_couch_interface()
+        sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
+        lang_prop_dict = language_proportion_dict(sa2_languages)
 
         if(scenario_id=="diversity"):
             # get queried results in a list of dict: e.g.
@@ -135,20 +189,22 @@ class Sentiment(Resource):
             results = ci.grouped_results(db_name, design_doc, view_name)
 
             # convert into a dict of lists (like a dataframe)
-            sa2s = sums = counts = []
+            sa2s = avgs = counts = lang_props = []
             for result in results:
                 sa2 = list(result.keys())[0]
                 sa2s.append(sa2)
-                sums.append(result[sa2]['sum'])
+                avgs.append(result[sa2]['sum'] / result[sa2]['count'])
                 counts.append(result[sa2]['count'])
+                lang_props.append(lang_prop_dict[sa2])
 
-            results_zipped = {'sa2':sa2s, 'sum':sums, 'count':counts}
+            # a quick linear fit
+            # lin_model = LinearRegression().fit(lang_props, avgs)
+
+            results_zipped = {'sa2':sa2s, 'mean_compound':avgs, 'count':counts, 'prop_spk_other_lang':lang_props}
             analytics[scenario_id]['returned_data'] = results_zipped
 
         return analytics[scenario_id]
-        # return results
 
-"/personal-info/<string:name>"
 
 api.add_resource(Analytics, '/api/analytics/')
 api.add_resource(Scenario, '/api/analytics/')
