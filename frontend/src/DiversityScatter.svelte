@@ -55,7 +55,7 @@
 <!--<div class="relative flex items-center justify-center flex-col h-full w-full p-2 bg-white bg-opacity-30 rounded-2xl backdrop-filter">-->
 <div class="container">
     <div class="flex-item">
-        <h1 class="flex-item">Tweet sentiment vs diversity</h1>
+        <h1>Tweet sentiment vs diversity</h1>
     </div>
     <div class="chart flex-item" bind:clientWidth={width}>
         <svg id="plot" bind:this={svg} {width} {height}>
@@ -164,5 +164,9 @@
     #fit-line line {
         stroke: #950d0d;
         stroke-dasharray: 0;
+    }
+
+    h1 {
+        @apply text-xl
     }
 </style>

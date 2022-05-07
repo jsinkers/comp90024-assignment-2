@@ -1,17 +1,17 @@
 <script>
+    import {Router, Route, Link} from 'svelte-navigator';
     import Tailwindcss from './Tailwindcss.svelte';
     import Sidebar from './Sidebar.svelte';
-    import Map from './Map.svelte';
-    import Landing from './Landing.svelte';
+
     import Landing2 from './Landing2.svelte';
     import Opportunity from './Opportunity.svelte';
     import SocialEngagement from './SocialEngagement.svelte';
+    import DiversityMap from './DiversityMap.svelte';
+    import DiversityScatter from "./DiversityScatter.svelte";
+    import SeifaMap from './SeifaMap.svelte';
+    import SeifaChart from './SeifaChart.svelte';
 
     export let name;
-    import {Router, Route, Link} from 'svelte-navigator';
-    import DiversityScatter from "./DiversityScatter.svelte";
-    import Line from "svelte-chartjs/src/Line.svelte"
-
 </script>
 
 <Tailwindcss />
@@ -33,7 +33,7 @@
                         <Opportunity/>
                     </Route>
                     <Route path="/map">
-                        <Map lat={-37.8136} lon={144.9631} zoom={9} />
+                        <DiversityMap lat={-37.8136} lon={144.9631} zoom={9} />
                     </Route>
                     <Route path="/chart">
                         <DiversityScatter/>
@@ -45,10 +45,11 @@
                     </Route>
                     <Route path="/map">
                         <!-- TODO: create different map/parametrise existing component -->
-                        <Map lat={-37.8136} lon={144.9631} zoom={9} />
+                        <SeifaMap lat={-37.8136} lon={144.9631} zoom={9} />
                     </Route>
                     <Route path="/chart">
                         <!--TODO - election issues -->
+                        <SeifaChart/>
                     </Route>
                 </Route>
                 <Route path="about">
@@ -64,18 +65,6 @@
 </Router>
 
 <style>
-    /*
-    .container {
-        @apply h-full w-11/12 absolute right-0 top-0 z-10;
-    }
-    */
-
-    main {
-        /*
-        display: inline-block;
-        */
-    }
-
     header {
         display: inline-block;
     }
