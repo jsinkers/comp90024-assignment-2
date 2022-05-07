@@ -3,71 +3,75 @@
     import Sidebar from './Sidebar.svelte';
     import Map from './Map.svelte';
     import Landing from './Landing.svelte';
+    import Landing2 from './Landing2.svelte';
+    import Opportunity from './Opportunity.svelte';
 
     export let name;
     import {Router, Route, Link} from 'svelte-navigator';
     import DiversityScatter from "./DiversityScatter.svelte";
+    import Line from "svelte-chartjs/src/Line.svelte"
+
 </script>
 
 <Tailwindcss />
 <Router>
-    <header>
-        <Sidebar />
-    </header>
+    <div>
+        <header>
+            <Sidebar />
+        </header>
 
-    <main>
-        <div class="container">
-            <Route>
-                <!--TODO: Default route - landing page-->
-                <!--<Landing/>-->
-            </Route>
-            <Route path="opportunity/*">
-                <!-- TODO: page displays information about the indicator, data used - allow selection of visualisation -->
-                <!-- Alternatively - add info popup on the visualisations that provide this information -->
-                <!--<h1>Opportunity</h1>-->
-                <Route path="/map">
-                    <Map lat={-37.8136} lon={144.9631} zoom={9} />
+        <main>
+            <div class="container">
+                <Route>
+                    <Landing2/>-->
                 </Route>
-                <Route path="/chart">
-                    <div class="chart">
-                        <h2>Plot</h2>
+                <Route path="opportunity/*">
+                    <!-- TODO: page displays information about the indicator, data used - allow selection of visualisation -->
+                    <!-- Alternatively - add info popup on the visualisations that provide this information -->
+                    <Route path="/">
+                        <Opportunity/>
+                    </Route>
+                    <Route path="/map">
+                        <Map lat={-37.8136} lon={144.9631} zoom={9} />
+                    </Route>
+                    <Route path="/chart">
                         <DiversityScatter/>
-                    </div>
+                    </Route>
                 </Route>
-            </Route>
-            <Route path="social-engagement/*">
-                <h1>Opportunity</h1>
-                <Route path="/map">
-                    <!-- TODO: create different map/parametrise existing component -->
-                    <Map lat={-37.8136} lon={144.9631} zoom={9} />
-                </Route>
-                <Route path="/chart">
-                    <div class="chart">
+                <Route path="social-engagement/*">
+                    <h1>Opportunity</h1>
+                    <Route path="/map">
+                        <!-- TODO: create different map/parametrise existing component -->
+                        <Map lat={-37.8136} lon={144.9631} zoom={9} />
+                    </Route>
+                    <Route path="/chart">
                         <!--TODO - election issues -->
-                        <h2>Plot</h2>
-                    </div>
+                    </Route>
                 </Route>
-            </Route>
-            <Route path="about">
-                <!--TODO -->
+                <Route path="about">
+                    <!--TODO -->
 
-            </Route>
-        </div>
-    </main>
-
+                </Route>
+            </div>
+        </main>
+    </div>
 </Router>
 
 <style>
-    .chart {
-        width: 100%;
-        max-width: 640px;
-        height: calc(100% - 4em);
-        min-height: 280px;
-        max-height: 480px;
-        margin: 0 auto;
-    }
-
+    /*
     .container {
-
+        @apply h-full w-11/12 absolute right-0 top-0 z-10;
     }
+    */
+
+    main {
+        /*
+        display: inline-block;
+        */
+    }
+
+    header {
+        display: inline-block;
+    }
+
 </style>

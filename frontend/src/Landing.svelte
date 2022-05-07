@@ -17,10 +17,10 @@ let nodeRef;
 </div>
 
 <style>
-  .btn-group {
-    @apply relative flex items-center justify-center space-x-4 w-1/2;
-  }
-  .button {
-    @apply bg-white border-2 border-blue-300 rounded-2xl p-2 hover:bg-blue-300 hover:text-white hover:border-white;
-  }
+    .btn-group {
+        @apply relative flex items-center justify-center space-x-4 w-1/2;
+    }
+    .button {
+        @apply bg-white border-2 border-blue-300 rounded-2xl p-2 hover:bg-blue-300 hover:text-white hover:border-white;
+    }
 </style>
