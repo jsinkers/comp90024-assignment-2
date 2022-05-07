@@ -48,7 +48,7 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'/sa2-seifa-lang-small.geojson'
+                'data':'http://172.26.134.62/api/analytics/diversity/language/'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -59,7 +59,7 @@
 					'fill-color': [
 						'interpolate',
 						['linear'],
-						['get', 'prop_spk_other_lang'],
+						['get', 'prop'],
 						0,
 						'#F2F12D',
 						0.1,
@@ -97,7 +97,7 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				'data': '/twitter-melb-filtered.geojson'
+				'data': 'http://172.26.134.62/api/analytics/diversity/tweets/'
 			});
 			map.addLayer({
 				'id': 'tweets-points',
