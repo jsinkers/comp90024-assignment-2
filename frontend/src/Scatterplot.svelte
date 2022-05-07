@@ -3,7 +3,8 @@
 	import { onMount } from 'svelte';
 	import { scaleLinear } from 'd3-scale';
 
-	export let points;
+	import data from "./data.js";
+	let points = data.a;
 
 	let svg;
 	let width = 500;
