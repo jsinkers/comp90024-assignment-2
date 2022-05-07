@@ -4,13 +4,12 @@
     import Map from './Map.svelte';
     import Landing from './Landing.svelte';
     import Landing2 from './Landing2.svelte';
+    import Opportunity from './Opportunity.svelte';
 
     export let name;
     import {Router, Route, Link} from 'svelte-navigator';
     import DiversityScatter from "./DiversityScatter.svelte";
     import Line from "svelte-chartjs/src/Line.svelte"
-
-
 
 </script>
 
@@ -24,13 +23,14 @@
         <main>
             <div class="container">
                 <Route>
-                    <!--TODO: Default route - landing page-->
                     <Landing2/>-->
                 </Route>
                 <Route path="opportunity/*">
                     <!-- TODO: page displays information about the indicator, data used - allow selection of visualisation -->
                     <!-- Alternatively - add info popup on the visualisations that provide this information -->
-                    <!--<h1>Opportunity</h1>-->
+                    <Route path="/">
+                        <Opportunity/>
+                    </Route>
                     <Route path="/map">
                         <Map lat={-37.8136} lon={144.9631} zoom={9} />
                     </Route>

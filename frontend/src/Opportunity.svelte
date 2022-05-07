@@ -6,13 +6,14 @@
 
 <div class="container">
     <div class="relative flex items-center justify-center flex-col h-full w-full p-2 bg-white bg-opacity-30 rounded-2xl backdrop-filter">
-        <span class="relative flex items-center justify-center text-2xl mb-10">Liveability in Melbourne</span>
-        <p>Exploring liveability in Melbourne through the Australian Federal election 2022</p>
-        <p></p>
-        <p>Select a livability indicator</p>
+        <span class="relative flex items-center justify-center text-2xl mb-10">Opportunity</span>
+        <p>To explore the opportunity liveability indicator, we have examined trends between diversity and the attitude towards politics and elections.</p>
+        <p>Our analysis measures diversity using 2016 census data on the language spoken at home, and examines the sentiment of tweets from
+        each suburb.</p>
+        <p id="vis-p">Select a visualisation</p>
         <span class="btn-group justify-center items-center">
-        <button class="button" on:click={()=>navigate('opportunity')}>Opportunity</button>
-        <button class="button" on:click={()=>navigate('social-engagement')}>Social Engagement</button>
+        <button class="button" on:click={()=>navigate('map')}>Map</button>
+        <button class="button" on:click={()=>navigate('chart')}>Chart</button>
     </span>
     </div>
 </div>
@@ -32,7 +33,10 @@
     }
 
     p {
-        text-align: center;
         margin: 5px;
+    }
+
+    #vis-p {
+        text-align: center;
     }
 </style>

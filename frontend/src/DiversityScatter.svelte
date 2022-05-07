@@ -52,9 +52,12 @@
 </script>
 
 <svelte:window on:resize='{resize}'/>
+<!--<div class="relative flex items-center justify-center flex-col h-full w-full p-2 bg-white bg-opacity-30 rounded-2xl backdrop-filter">-->
 <div class="container">
-    <h1>Tweet sentiment vs diversity</h1>
-    <div class="chart" bind:clientWidth={width}>
+    <div class="flex-item">
+        <h1 class="flex-item">Tweet sentiment vs diversity</h1>
+    </div>
+    <div class="chart flex-item" bind:clientWidth={width}>
         <svg id="plot" bind:this={svg} {width} {height}>
             <!-- y axis -->
             <g class='axis y-axis'>
@@ -81,6 +84,7 @@
             {#await fetchData()}
                 <p>loading></p>
             {:then points}
+
                 {#each points as point}
                     <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
                 {/each}
@@ -100,25 +104,37 @@
 
         </svg>
     </div>
-    <p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
+    <div class="flex-item">
+        <p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
+    </div>
 </div>
 
 <style>
     .container {
-		@apply h-full w-11/12 absolute;
-    }
-    .chart, h1, p {
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .chart {
-        @apply w-10/12 absolute right-0 top-0 z-10;
+        @apply h-full w-11/12 absolute right-0 top-0;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-content: center;
     }
 
-    svg {
-        position: relative;
+    .flex-item:nth-child(1) {
+        order: 0;
+        flex: 0 1 auto;
+        align-self: auto;
+    }
+
+    .flex-item:nth-child(2) {
+        order: 1;
+        flex: 0 1 auto;
+        align-self: auto;
+    }
+
+    .flex-item:nth-child(3) {
+        order: 2;
+        flex: 0 1 auto;
+        align-self: auto;
     }
 
     circle {
