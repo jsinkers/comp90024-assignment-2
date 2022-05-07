@@ -39,7 +39,9 @@
     async function fetchData() {
         await json(data_url).then((dataset) => {
             for (let i = 0; i < dataset.compound.length; i++) {
-                let point = {'compound': dataset.compound[i], 'prop_spk_other_lang': dataset.prop_spk_other_lang[i]}
+                let point = {'compound': dataset.compound[i],
+                    'prop_spk_other_lang': dataset.prop_spk_other_lang[i],
+                    'fit': dataset.fit[i]}
                 points.push(point);
             }
             console.log(points);
@@ -51,51 +53,77 @@
 
 <svelte:window on:resize='{resize}'/>
 
-<svg id="plot" bind:this={svg} bind:clientWidth={width} bind:clientHeight={height}>
-    <!-- y axis -->
-    <g class='axis y-axis'>
-        {#each yTicks as tick}
+<h1>Tweet sentiment vs diversity</h1>
+<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
+    <svg id="plot" bind:this={svg} {width} {height}>
+        <!-- y axis -->
+        <g class='axis y-axis'>
+            {#each yTicks as tick}
 
-            <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
-                <line x1='{padding.left}' x2='{xScale(1)}'/>
-                <text x='{padding.left - 8}' y='+4'>{tick}</text>
+                <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
+                    <line x1='{padding.left}' x2='{xScale(1)}'/>
+                    <text x='{padding.left - 8}' y='+4'>{tick}</text>
+                </g>
+            {/each}
+        </g>
+
+        <!-- x axis -->
+        <g class='axis x-axis'>
+            {#each xTicks as tick}
+                <g class='tick' transform='translate({xScale(tick)},0)'>
+                    <line y1='{yScale(-1)}' y2='{yScale(1)}'/>
+                    <text y='{height - padding.bottom + 16}'>{tick}</text>
+                </g>
+            {/each}
+        </g>
+
+        <!-- data -->
+        {#await fetchData()}
+            <p>loading></p>
+        {:then points}
+            {#each points as point}
+                <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
+            {/each}
+            <g id="fit-line">
+                <line x1='{xScale(points[0].prop_spk_other_lang)}'
+                      x2='{xScale(points[points.length-1].prop_spk_other_lang)}'
+                      y1='{yScale(points[0].fit)}'
+                      y2='{yScale(points[points.length-1].fit)}'/>
             </g>
-        {/each}
-    </g>
+            <text class="y-label">
 
-    <!-- x axis -->
-    <g class='axis x-axis'>
-        {#each xTicks as tick}
-            <g class='tick' transform='translate({xScale(tick)},0)'>
-                <line y1='{yScale(-1)}' y2='{yScale(1)}'/>
-                <text y='{height - padding.bottom + 16}'>{tick}</text>
-            </g>
-        {/each}
-    </g>
+            </text>
 
-    <!-- data -->
-    {#await fetchData()}
-        <p>loading></p>
-    {:then points}
-        {#each points as point}
-            <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
-        {/each}
-    {:catch error}
-        <p>{error.message}</p>
-    {/await}await
+        {:catch error}
+            <p>{error.message}</p>
+        {/await}await
 
-</svg>
+    </svg>
+</div>
+<p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
 
 <style>
+    .chart, h1, p {
+		width: 100%;
+		max-width: 500px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+    .chart {
+        @apply h-full w-10/12 absolute right-0 top-0 z-10;
+    }
+    /*
     div {
-        /*@apply h-full w-11/12 absolute right-0 top-0 z-10;*/
+        !*@apply h-full w-11/12 absolute right-0 top-0 z-10;*!
         width: 100%;
         height: 100%;
     }
+    */
 
     svg {
-        @apply h-full w-11/12 absolute right-0 top-0 z-10;
-        height: 100%;
+        height: 90%;
+        position: relative;
         /*float: left;*/
     }
 
@@ -121,5 +149,10 @@
 
     .y-axis text {
         text-anchor: end;
+    }
+
+    #fit-line line {
+        stroke: #950d0d;
+        stroke-dasharray: 0;
     }
 </style>

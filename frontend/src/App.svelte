@@ -32,11 +32,7 @@
                         <Map lat={-37.8136} lon={144.9631} zoom={9} />
                     </Route>
                     <Route path="/chart">
-                        <div class="chart">
-                            <h2>Plot</h2>
-                            <DiversityScatter/>
-                            <!--<Line data={...} />-->
-                        </div>
+                        <DiversityScatter/>
                     </Route>
                 </Route>
                 <Route path="social-engagement/*">
@@ -46,10 +42,7 @@
                         <Map lat={-37.8136} lon={144.9631} zoom={9} />
                     </Route>
                     <Route path="/chart">
-                        <div class="chart">
-                            <!--TODO - election issues -->
-                            <h2>Plot</h2>
-                        </div>
+                        <!--TODO - election issues -->
                     </Route>
                 </Route>
                 <Route path="about">
@@ -62,23 +55,15 @@
 </Router>
 
 <style>
-    .chart {
-        width: 100%;
-        /*max-width: 640px;*/
-        height: calc(100% - 4em);
-        min-height: 280px;
-        /*max-height: 480px;*/
-        margin: 0 auto;
-    }
-
     .container {
         height: 100%;
-
     }
 
     main {
         height:100%;
+        /*
         display: inline-block;
+        */
     }
 
     header {
