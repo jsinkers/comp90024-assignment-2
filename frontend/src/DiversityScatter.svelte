@@ -2,37 +2,29 @@
 <script>
     import { onMount } from 'svelte';
     import { scaleLinear } from 'd3-scale';
-    import {axisBottom, axisLeft, json} from 'd3';
+    import { json } from 'd3';
 
     let data_url = "/sa2-diversity-sentiment-fit.json";
     //let data_url = 'http://172.26.134.62/api/analytics/diversity/sentiment/diversity/'
 
     let points = [];
     let svg;
-    let margin = {top: 10, right: 30, bottom: 30, left: 60};
-
-    let width = 800;
-    let height=600;
-
-    $: mainWidth = width - margin.right - margin.left;
-    $: mainHeight = height - margin.top - margin.bottom;
+    let margin = {top: 20, right: 30, bottom: 30, left: 60};
+    let width = 600;
+    let height= 600;
 
     const padding = { top: 20, right: 40, bottom: 40, left: 25 };
 
     $: xScale = scaleLinear()
         .domain([0, 1])
-        .range([0, mainWidth]);
+        .range([padding.left, width-padding.right]);
 
     $: yScale = scaleLinear()
         .domain([-1, 1])
-        .range([mainHeight, 0]);
+        .range([height-padding.bottom, padding.top]);
 
-    $: xTicks = width > 180 ?
-        [0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1] : [0, 0.5, 1];
-
-    $: yTicks = height > 180 ?
-        [-1, -0.5, 0, 0.5, 1] :
-        [-1, 0, 1];
+    $: xTicks = [0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1]
+    $: yTicks = [-1, -0.5, 0, 0.5, 1]
 
     onMount(() => {
         resize();
@@ -54,14 +46,16 @@
         });
         return points;
     }
+
 </script>
 
 <svelte:window on:resize='{resize}'/>
 
-<svg id="plot" bind:this={svg} {width} {height}>
+<svg id="plot" bind:this={svg} bind:clientWidth={width} bind:clientHeight={height}>
     <!-- y axis -->
     <g class='axis y-axis'>
         {#each yTicks as tick}
+
             <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
                 <line x1='{padding.left}' x2='{xScale(1)}'/>
                 <text x='{padding.left - 8}' y='+4'>{tick}</text>
@@ -84,7 +78,7 @@
         <p>loading></p>
     {:then points}
         {#each points as point}
-            <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='5'/>
+            <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
         {/each}
     {:catch error}
         <p>{error.message}</p>
