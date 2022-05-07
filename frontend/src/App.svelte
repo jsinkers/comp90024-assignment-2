@@ -3,11 +3,15 @@
     import Sidebar from './Sidebar.svelte';
     import Map from './Map.svelte';
     import Landing from './Landing.svelte';
+    import Landing2 from './Landing2.svelte';
 
     export let name;
     import {Router, Route, Link} from 'svelte-navigator';
     import DiversityScatter from "./DiversityScatter.svelte";
     import Line from "svelte-chartjs/src/Line.svelte"
+
+
+
 </script>
 
 <Tailwindcss />
@@ -21,8 +25,7 @@
             <div class="container">
                 <Route>
                     <!--TODO: Default route - landing page-->
-                    <!--<Landing/>-->
-                    Exploring livability in Melbourne through the Australian Federal election 2022
+                    <Landing2/>-->
                 </Route>
                 <Route path="opportunity/*">
                     <!-- TODO: page displays information about the indicator, data used - allow selection of visualisation -->
@@ -55,12 +58,13 @@
 </Router>
 
 <style>
+    /*
     .container {
-        height: 100%;
+        @apply h-full w-11/12 absolute right-0 top-0 z-10;
     }
+    */
 
     main {
-        height:100%;
         /*
         display: inline-block;
         */

@@ -52,79 +52,73 @@
 </script>
 
 <svelte:window on:resize='{resize}'/>
+<div class="container">
+    <h1>Tweet sentiment vs diversity</h1>
+    <div class="chart" bind:clientWidth={width}>
+        <svg id="plot" bind:this={svg} {width} {height}>
+            <!-- y axis -->
+            <g class='axis y-axis'>
+                {#each yTicks as tick}
 
-<h1>Tweet sentiment vs diversity</h1>
-<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
-    <svg id="plot" bind:this={svg} {width} {height}>
-        <!-- y axis -->
-        <g class='axis y-axis'>
-            {#each yTicks as tick}
-
-                <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
-                    <line x1='{padding.left}' x2='{xScale(1)}'/>
-                    <text x='{padding.left - 8}' y='+4'>{tick}</text>
-                </g>
-            {/each}
-        </g>
-
-        <!-- x axis -->
-        <g class='axis x-axis'>
-            {#each xTicks as tick}
-                <g class='tick' transform='translate({xScale(tick)},0)'>
-                    <line y1='{yScale(-1)}' y2='{yScale(1)}'/>
-                    <text y='{height - padding.bottom + 16}'>{tick}</text>
-                </g>
-            {/each}
-        </g>
-
-        <!-- data -->
-        {#await fetchData()}
-            <p>loading></p>
-        {:then points}
-            {#each points as point}
-                <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
-            {/each}
-            <g id="fit-line">
-                <line x1='{xScale(points[0].prop_spk_other_lang)}'
-                      x2='{xScale(points[points.length-1].prop_spk_other_lang)}'
-                      y1='{yScale(points[0].fit)}'
-                      y2='{yScale(points[points.length-1].fit)}'/>
+                    <g class='tick tick-{tick}' transform='translate(0, {yScale(tick)})'>
+                        <line x1='{padding.left}' x2='{xScale(1)}'/>
+                        <text x='{padding.left - 8}' y='+4'>{tick}</text>
+                    </g>
+                {/each}
             </g>
-            <text class="y-label">
 
-            </text>
+            <!-- x axis -->
+            <g class='axis x-axis'>
+                {#each xTicks as tick}
+                    <g class='tick' transform='translate({xScale(tick)},0)'>
+                        <line y1='{yScale(-1)}' y2='{yScale(1)}'/>
+                        <text y='{height - padding.bottom + 16}'>{tick}</text>
+                    </g>
+                {/each}
+            </g>
 
-        {:catch error}
-            <p>{error.message}</p>
-        {/await}await
+            <!-- data -->
+            {#await fetchData()}
+                <p>loading></p>
+            {:then points}
+                {#each points as point}
+                    <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
+                {/each}
+                <g id="fit-line">
+                    <line x1='{xScale(points[0].prop_spk_other_lang)}'
+                          x2='{xScale(points[points.length-1].prop_spk_other_lang)}'
+                          y1='{yScale(points[0].fit)}'
+                          y2='{yScale(points[points.length-1].fit)}'/>
+                </g>
+                <text class="y-label">
 
-    </svg>
+                </text>
+
+            {:catch error}
+                <p>{error.message}</p>
+            {/await}await
+
+        </svg>
+    </div>
+    <p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
 </div>
-<p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
 
 <style>
+    .container {
+		@apply h-full w-11/12 absolute;
+    }
     .chart, h1, p {
-		width: 100%;
-		max-width: 500px;
-		margin-left: auto;
-		margin-right: auto;
-	}
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
     .chart {
-        @apply h-full w-10/12 absolute right-0 top-0 z-10;
+        @apply w-10/12 absolute right-0 top-0 z-10;
     }
-    /*
-    div {
-        !*@apply h-full w-11/12 absolute right-0 top-0 z-10;*!
-        width: 100%;
-        height: 100%;
-    }
-    */
 
     svg {
-        height: 90%;
         position: relative;
-        /*float: left;*/
     }
 
     circle {
