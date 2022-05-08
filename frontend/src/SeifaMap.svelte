@@ -241,7 +241,7 @@
 		</div>
 	</div>
 
-	<div class="map-overlay" id="info">
+	<div class="map-overlay inset-0" id="info">
 		<Modal><Content/></Modal>
 	</div>
 </div>
@@ -290,7 +290,7 @@
 	}
 
 	#info {
-		position: relative;
+		position: absolute;
 		width: fit-content;
 		height: fit-content;
 	}
