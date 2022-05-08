@@ -36,18 +36,34 @@
 			'#8B4225',
 			'#723122'
 		];
+
+		let choropleth_colors_expression = [ 'interpolate', ['linear'], ['get', 'irsad_score']];
+		for (let i = 0; i < choropleth_layers.length; i++) {
+			choropleth_colors_expression.push(choropleth_layers[i]);
+			choropleth_colors_expression.push(choropleth_colors[i]);
+		}
+
 		const sentiment_layers = ['childcare', 'housing', 'taxes', 'aged care', 'health', 'economy'];
-		const sentiment_colors = ["#F8766D", "#F5EB67", "#00BA38", "#619CFF", "#012840", "#FFA15C" ];
+		// https://colorswall.com/palette/1751/
+		const sentiment_colors = [ // "#03a8a0",
+			// "#039c4b",
+			"#66d313",
+			"#fedf17",
+			// "#ff0984",
+			"#21409a",
+			"#04adff",
+			// "#e48873",
+			"#f16623",
+			"#f44546"
+		];
 		// compile a color expression to color markers on the map
-		let color_expression = ['match', ['get', 'election_issue']];
+		let marker_colors_expression = ['match', ['get', 'election_issue']];
 		for (let i = 0; i < sentiment_layers.length; i++) {
-			console.log(color_expression);
-			color_expression.push(sentiment_layers[i]);
-			color_expression.push(sentiment_colors[i]);
+			marker_colors_expression.push(sentiment_layers[i]);
+			marker_colors_expression.push(sentiment_colors[i]);
 		}
 		// add a default colour
-		color_expression.push("#FFFFFF")
-		console.log(color_expression);
+		marker_colors_expression.push("#FFFFFF")
 
 		map = new mapbox.Map({
 			container,
@@ -68,29 +84,7 @@
                 'source':'sa2',
                 'layout':{},
                 'paint':{
-					'fill-color': [
-						'interpolate',
-						['linear'],
-						['get', 'irsad_score'],
-						700,
-						'#F2F12D',
-						750,
-						'#EED322',
-						800,
-						'#E6B71E',
-						850,
-						'#DA9C20',
-						900,
-						'#CA8323',
-						950,
-						'#B86B25',
-						1000,
-						'#A25626',
-						1050,
-						'#8B4225',
-						1100,
-						'#723122'
-					],
+					'fill-color': choropleth_colors_expression,
                     'fill-opacity':0.7
                 },
                 'filter': ['==', '$type', 'Polygon']
@@ -118,7 +112,7 @@
 				'source': 'tweets',
 				'paint': {
 					'circle-radius': 5,
-					'circle-color': color_expression,
+					'circle-color': marker_colors_expression,
 					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
