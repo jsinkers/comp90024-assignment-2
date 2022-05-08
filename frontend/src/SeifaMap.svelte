@@ -1,6 +1,8 @@
 <script>
 	import { onDestroy, setContext } from 'svelte';
 	import {mapbox, key} from './mapbox.js';
+	import Modal from 'svelte-simple-modal';
+	import Content from './Content.svelte';
 
 	setContext(key, {
 		getMap: () => map,
@@ -238,6 +240,10 @@
 			<h2>Election Issue</h2>
 		</div>
 	</div>
+
+	<div class="map-overlay" id="info">
+		<Modal><Content/></Modal>
+	</div>
 </div>
 
 <style>
@@ -281,6 +287,12 @@
 
 	h2 {
 		font-weight: bold;
+	}
+
+	#info {
+		position: relative;
+		width: fit-content;
+		height: fit-content;
 	}
 
 </style>
