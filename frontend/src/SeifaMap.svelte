@@ -15,15 +15,15 @@
 
 	function load() {
 		const choropleth_layers = [
-			"0-10%",
-			"10-20%",
-			"20-30%",
-			"30-40%",
-			"40-50%",
-			"50-60%",
-			"60-70%",
-			"70-80%",
-			">80%",
+			700,
+			750,
+			800,
+			850,
+			900,
+			950,
+			1000,
+			1050,
+			1100
 		];
 		const choropleth_colors = [
 			'#F2F12D',
@@ -36,8 +36,19 @@
 			'#8B4225',
 			'#723122'
 		];
-		const sentiment_layers = ["Negative", "Neutral", "Positive"];
-		const sentiment_colors = ["#FF0040", "#000040", "#00FF40"]
+		const sentiment_layers = ['childcare', 'housing', 'taxes', 'aged care', 'health', 'economy'];
+		const sentiment_colors = ["#F8766D", "#F5EB67", "#00BA38", "#619CFF", "#012840", "#FFA15C" ];
+		// compile a color expression to color markers on the map
+		let color_expression = ['match', ['get', 'election_issue']];
+		for (let i = 0; i < sentiment_layers.length; i++) {
+			console.log(color_expression);
+			color_expression.push(sentiment_layers[i]);
+			color_expression.push(sentiment_colors[i]);
+		}
+		// add a default colour
+		color_expression.push("#FFFFFF")
+		console.log(color_expression);
+
 		map = new mapbox.Map({
 			container,
 			style: 'mapbox://styles/mapbox/streets-v11',
@@ -48,7 +59,8 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'http://172.26.134.62/api/analytics/diversity/language/'
+				// TODO: replace with API URL
+                'data':'/sa2-seifa-lang-small.geojson'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -59,24 +71,24 @@
 					'fill-color': [
 						'interpolate',
 						['linear'],
-						['get', 'prop'],
-						0,
+						['get', 'irsad_score'],
+						700,
 						'#F2F12D',
-						0.1,
+						750,
 						'#EED322',
-						0.2,
+						800,
 						'#E6B71E',
-						0.3,
+						850,
 						'#DA9C20',
-						0.4,
+						900,
 						'#CA8323',
-						0.5,
+						950,
 						'#B86B25',
-						0.6,
+						1000,
 						'#A25626',
-						0.7,
+						1050,
 						'#8B4225',
-						0.8,
+						1100,
 						'#723122'
 					],
                     'fill-opacity':0.7
@@ -97,7 +109,8 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				'data': 'http://172.26.134.62/api/analytics/diversity/tweets/'
+				// TODO: replace with API URL
+				'data': '/twitter-melb-filtered-issues.geojson'
 			});
 			map.addLayer({
 				'id': 'tweets-points',
@@ -105,14 +118,7 @@
 				'source': 'tweets',
 				'paint': {
 					'circle-radius': 5,
-					'circle-color': ["rgb",
-						// red: if compound < 0 then red is 0
-						['*', 255, ['max', 0, ['get', 'compound'] ] ],
-						// green: if compound > 0 then green is 0
-						['*', -255, ['min', 0, ['get', 'compound'] ] ],
-						// blue:
-						40
-					],
+					'circle-color': color_expression,
 					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
@@ -153,7 +159,7 @@
 			item.appendChild(value);
 			legend_choropleth.appendChild(item);
 		});
-		const legend_sentiment = document.getElementById('legend-sentiment');
+		const legend_marker = document.getElementById('legend-marker');
 		sentiment_layers.forEach((layer, i) => {
 			const color = sentiment_colors[i];
 			const item = document.createElement('div');
@@ -165,7 +171,7 @@
 			value.innerHTML = `${layer}`;
 			item.appendChild(key);
 			item.appendChild(value);
-			legend_sentiment.appendChild(item);
+			legend_marker.appendChild(item);
 		});
 	}
 
@@ -199,10 +205,10 @@
 			}
 		</style>
 		<div id='legend-choropleth'>
-			<h2>Diversity</h2>
+			<h2>SEIFA - IRSAD Score</h2>
 		</div>
-		<div id='legend-sentiment'>
-			<h2>Sentiment</h2>
+		<div id='legend-marker'>
+			<h2>Election Issue</h2>
 		</div>
 	</div>
 </div>
@@ -241,7 +247,7 @@
 		position: relative;
 		height: min-content;
 	}
-	#legend-sentiment {
+	#legend-marker {
 		position: relative;
 		height: min-content;
 	}
