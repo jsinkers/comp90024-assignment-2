@@ -12,6 +12,10 @@
 
 	let container;
 	let map;
+	let elementPopup;
+	let popupTweet;
+	let popupSentiment;
+	let popupElectionIssue;
 
 	function load() {
 		const choropleth_layers = [
@@ -118,26 +122,47 @@
 			});
         }, 2000);
 
-		map.on('click', 'tweets-points', (e) => {
+		// Create a popup, but don't add it to the map yet.
+		const popup = new mapbox.Popup({
+			closeButton: false,
+			closeOnClick: false
+		});
+
+		map.on('mouseenter', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = 'pointer';
 			const coordinates = e.features[0].geometry.coordinates.slice();
-			const description = e.features[0].properties.text;
+			popupSentiment = e.features[0].properties.compound;
+			popupTweet = e.features[0].properties.text;
+			popupElectionIssue = e.features[0].properties.election_issue;
+			let description = `<p><b>Tweet:</b> ${popupTweet}</p>`;
+			description += `<p><b>Election issue:</b> ${popupElectionIssue}</p>`;
+			description += `<p><b>Sentiment:</b> ${popupSentiment}</p>`;
 
 			while(Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
 				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
 			}
 
-			new mapbox.Popup()
-				.setLngLat(coordinates)
-				.setHTML(description)
+			popup.setLngLat(coordinates)
+					.setHTML(description)
+				//.setDOMContent(elementPopup)
 				.addTo(map);
 		});
 
+		map.on('mouseleave', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = '';
+			popup.remove();
+		});
+
+/*
 		map.on('mouseenter', 'tweets-points', () => {
 			map.getCanvas().style.cursor = 'pointer';
 		});
+*/
+/*
 		map.on('mouseleave', 'tweets-points', () => {
 			map.getCanvas().style.cursor = '';
 		});
+*/
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
 		choropleth_layers.forEach((layer, i) => {
@@ -182,6 +207,14 @@
 			on:load={load}
 	/>
 </svelte:head>
+<!--
+<div class='popup' bind:this={elementPopup}>
+  <slot name="popup"></slot>
+	<p>Tweet: {popupTweet}</p>
+	<p>Election issue: {popupElectionIssue}</p>
+	<p>Sentiment: {popupSentiment}</p>
+</div>
+-->
 
 <div bind:this={container}>
 	{#if map}
