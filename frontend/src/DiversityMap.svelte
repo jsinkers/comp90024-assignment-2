@@ -1,6 +1,9 @@
 <script>
+	import { writable } from 'svelte/store';
 	import { onDestroy, setContext } from 'svelte';
 	import {mapbox, key} from './mapbox.js';
+	import Modal, {bind} from 'svelte-simple-modal';
+	import DiversityPopup from './InfoDiversityMap.svelte';
 
 	setContext(key, {
 		getMap: () => map,
@@ -172,6 +175,9 @@
 	onDestroy(() => {
 		if (map) map.remove();
 	});
+
+	const modal = writable(null);
+	const showModal = () => modal.set(bind(DiversityPopup, {}));
 </script>
 
 <!-- this special element will be explained in a later section -->
@@ -183,7 +189,7 @@
 	/>
 </svelte:head>
 
-<div bind:this={container}>
+<div id="map" bind:this={container}>
 	{#if map}
 		<slot />
 	{/if}
@@ -206,13 +212,22 @@
 		</div>
 	</div>
 </div>
-
+<div class="map-overlay " id="info">
+	<Modal show={$modal}>
+		<span class="fa-solid fa-info-circle icon" on:click={showModal}></span>
+	</Modal>
+</div>
 <style>
-
-	div {
-		@apply h-full w-11/12 absolute right-0 top-0 z-10;
+	.icon {
+		font-size: 1.5em;
+		padding: 1rem;
+		@apply relative flex items-center justify-center mx-auto
+			rounded-full hover:bg-blue-600 hover:text-white transition-all duration-200 ease-linear cursor-pointer;
 	}
 
+	#map {
+		@apply h-full w-full absolute right-0 top-0 z-10;
+	}
 
 	/**
 	* Set rules for how the map overlays
@@ -220,7 +235,7 @@
 	* on the page. */
 	.map-overlay {
 		position: absolute;
-		bottom: 0;
+		top: 0;
 		right: 0;
 		background: #fff;
 		margin-right: 20px;
@@ -236,6 +251,7 @@
 		height: min-content;
 		margin-bottom: 40px;
 		width: 120px;
+		@apply z-20;
 	}
 	#legend-choropleth {
 		position: relative;
@@ -250,4 +266,10 @@
 		font-weight: bold;
 	}
 
+	#info {
+		@apply z-20 bg-transparent inset-0 left-4 top-4;
+		position: absolute;
+		width: fit-content;
+		height: fit-content;
+	}
 </style>

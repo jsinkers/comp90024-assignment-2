@@ -6,7 +6,7 @@
     <h1>About this visualisation</h1>
 
     <p>This map shows the SEIFA - IRSAD score for SA2 areas of Greater Melbourne. Election themed tweets are displayed
-        as markers coloured by election issue. Tweets opacity represents the intensity of sentiment analysed in the tweet,
+        as markers coloured by election issue. The opacity of tweet markers represents the intensity of sentiment analysed in the tweet,
         with higher opacity indicating greater intensity.</p>
 
     <h2>What is SEIFA - IRSAD?</h2>

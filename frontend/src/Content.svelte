@@ -1,10 +1,13 @@
 <script>
   import { getContext } from 'svelte';
-  import Popup from './InfoSeifaMap.svelte';
+  import SeifaPopup from './InfoSeifaMap.svelte';
+  // import DiversityPopup from './InfoDiversityMap.svelte';
+
   const { open } = getContext('simple-modal');
-  const showInfo = () => open(Popup, {});
+  const showInfoSeifa = () => open(SeifaPopup, {});
+  // const showInfoDiversity = () => open(DiversityPopup, {});
 </script>
 
 <p>
-	<button on:click={showInfo}>Info</button>
+	<button on:click={showInfoSeifa}>Info</button>
 </p>
