@@ -3,7 +3,7 @@
 	import { onDestroy, setContext } from 'svelte';
 	import {mapbox, key} from './mapbox.js';
 	import Modal, {bind} from 'svelte-simple-modal';
-	import SeifaPopup from './InfoSeifaMap.svelte';
+	import DiversityPopup from './InfoDiversityMap.svelte';
 
 	setContext(key, {
 		getMap: () => map,
@@ -177,7 +177,7 @@
 	});
 
 	const modal = writable(null);
-	const showModal = () => modal.set(bind(SeifaPopup, {}));
+	const showModal = () => modal.set(bind(DiversityPopup, {}));
 </script>
 
 <!-- this special element will be explained in a later section -->
