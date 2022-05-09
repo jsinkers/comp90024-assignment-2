@@ -48,7 +48,7 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'http://172.26.134.62/api/analytics/diversity/language/'
+                'data':'http://melbourneliveability.live/api/analytics/diversity/language/'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -97,7 +97,7 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				'data': 'http://172.26.134.62/api/analytics/diversity/tweets/'
+				'data': 'http://melbourneliveability.live/api/analytics/diversity/tweets/'
 			});
 			map.addLayer({
 				'id': 'tweets-points',

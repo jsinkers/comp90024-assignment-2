@@ -1,6 +1,8 @@
 <script>
 	import { onDestroy, setContext } from 'svelte';
 	import {mapbox, key} from './mapbox.js';
+	import Modal from 'svelte-simple-modal';
+	import Content from './Content.svelte';
 
 	setContext(key, {
 		getMap: () => map,
@@ -12,18 +14,22 @@
 
 	let container;
 	let map;
+	let elementPopup;
+	let popupTweet;
+	let popupSentiment;
+	let popupElectionIssue;
 
 	function load() {
 		const choropleth_layers = [
-			"0-10%",
-			"10-20%",
-			"20-30%",
-			"30-40%",
-			"40-50%",
-			"50-60%",
-			"60-70%",
-			"70-80%",
-			">80%",
+			700,
+			750,
+			800,
+			850,
+			900,
+			950,
+			1000,
+			1050,
+			1100
 		];
 		const choropleth_colors = [
 			'#F2F12D',
@@ -36,8 +42,35 @@
 			'#8B4225',
 			'#723122'
 		];
-		const sentiment_layers = ["Negative", "Neutral", "Positive"];
-		const sentiment_colors = ["#FF0040", "#000040", "#00FF40"]
+
+		let choropleth_colors_expression = [ 'interpolate', ['linear'], ['get', 'irsad_score']];
+		for (let i = 0; i < choropleth_layers.length; i++) {
+			choropleth_colors_expression.push(choropleth_layers[i]);
+			choropleth_colors_expression.push(choropleth_colors[i]);
+		}
+
+		const sentiment_layers = ['childcare', 'housing', 'taxes', 'aged care', 'health', 'economy'];
+		// https://colorswall.com/palette/1751/
+		const sentiment_colors = [ // "#03a8a0",
+			// "#039c4b",
+			"#66d313",
+			"#fedf17",
+			// "#ff0984",
+			"#21409a",
+			"#04adff",
+			// "#e48873",
+			"#f16623",
+			"#f44546"
+		];
+		// compile a color expression to color markers on the map
+		let marker_colors_expression = ['match', ['get', 'election_issue']];
+		for (let i = 0; i < sentiment_layers.length; i++) {
+			marker_colors_expression.push(sentiment_layers[i]);
+			marker_colors_expression.push(sentiment_colors[i]);
+		}
+		// add a default colour
+		marker_colors_expression.push("#FFFFFF")
+
 		map = new mapbox.Map({
 			container,
 			style: 'mapbox://styles/mapbox/streets-v11',
@@ -48,7 +81,8 @@
         setTimeout(() => {
             map.addSource('sa2', {
                 'type':'geojson',
-                'data':'http://172.26.134.62/api/analytics/diversity/language/'
+				// TODO: replace with API URL
+                'data':'/sa2-seifa-lang-small.geojson'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -56,29 +90,7 @@
                 'source':'sa2',
                 'layout':{},
                 'paint':{
-					'fill-color': [
-						'interpolate',
-						['linear'],
-						['get', 'prop'],
-						0,
-						'#F2F12D',
-						0.1,
-						'#EED322',
-						0.2,
-						'#E6B71E',
-						0.3,
-						'#DA9C20',
-						0.4,
-						'#CA8323',
-						0.5,
-						'#B86B25',
-						0.6,
-						'#A25626',
-						0.7,
-						'#8B4225',
-						0.8,
-						'#723122'
-					],
+					'fill-color': choropleth_colors_expression,
                     'fill-opacity':0.7
                 },
                 'filter': ['==', '$type', 'Polygon']
@@ -97,7 +109,8 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				'data': 'http://172.26.134.62/api/analytics/diversity/tweets/'
+				// TODO: replace with API URL
+				'data': '/twitter-melb-filtered-issues.geojson'
 			});
 			map.addLayer({
 				'id': 'tweets-points',
@@ -105,39 +118,53 @@
 				'source': 'tweets',
 				'paint': {
 					'circle-radius': 5,
-					'circle-color': ["rgb",
-						// red: if compound < 0 then red is 0
-						['*', 255, ['max', 0, ['get', 'compound'] ] ],
-						// green: if compound > 0 then green is 0
-						['*', -255, ['min', 0, ['get', 'compound'] ] ],
-						// blue:
-						40
-					],
+					'circle-color': marker_colors_expression,
 					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
         }, 2000);
 
-		map.on('click', 'tweets-points', (e) => {
+		// Create a popup, but don't add it to the map yet.
+		const popup = new mapbox.Popup({
+			closeButton: false,
+			closeOnClick: false
+		});
+
+		map.on('mouseenter', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = 'pointer';
 			const coordinates = e.features[0].geometry.coordinates.slice();
-			const description = e.features[0].properties.text;
+			popupSentiment = e.features[0].properties.compound;
+			popupTweet = e.features[0].properties.text;
+			popupElectionIssue = e.features[0].properties.election_issue;
+			let description = `<p><b>Tweet:</b> ${popupTweet}</p>`;
+			description += `<p><b>Election issue:</b> ${popupElectionIssue}</p>`;
+			description += `<p><b>Sentiment:</b> ${popupSentiment}</p>`;
 
 			while(Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
 				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
 			}
 
-			new mapbox.Popup()
-				.setLngLat(coordinates)
-				.setHTML(description)
+			popup.setLngLat(coordinates)
+					.setHTML(description)
+				//.setDOMContent(elementPopup)
 				.addTo(map);
 		});
 
+		map.on('mouseleave', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = '';
+			popup.remove();
+		});
+
+/*
 		map.on('mouseenter', 'tweets-points', () => {
 			map.getCanvas().style.cursor = 'pointer';
 		});
+*/
+/*
 		map.on('mouseleave', 'tweets-points', () => {
 			map.getCanvas().style.cursor = '';
 		});
+*/
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
 		choropleth_layers.forEach((layer, i) => {
@@ -153,7 +180,7 @@
 			item.appendChild(value);
 			legend_choropleth.appendChild(item);
 		});
-		const legend_sentiment = document.getElementById('legend-sentiment');
+		const legend_marker = document.getElementById('legend-marker');
 		sentiment_layers.forEach((layer, i) => {
 			const color = sentiment_colors[i];
 			const item = document.createElement('div');
@@ -165,7 +192,7 @@
 			value.innerHTML = `${layer}`;
 			item.appendChild(key);
 			item.appendChild(value);
-			legend_sentiment.appendChild(item);
+			legend_marker.appendChild(item);
 		});
 	}
 
@@ -182,6 +209,14 @@
 			on:load={load}
 	/>
 </svelte:head>
+<!--
+<div class='popup' bind:this={elementPopup}>
+  <slot name="popup"></slot>
+	<p>Tweet: {popupTweet}</p>
+	<p>Election issue: {popupElectionIssue}</p>
+	<p>Sentiment: {popupSentiment}</p>
+</div>
+-->
 
 <div bind:this={container}>
 	{#if map}
@@ -199,11 +234,15 @@
 			}
 		</style>
 		<div id='legend-choropleth'>
-			<h2>Diversity</h2>
+			<h2>SEIFA - IRSAD Score</h2>
 		</div>
-		<div id='legend-sentiment'>
-			<h2>Sentiment</h2>
+		<div id='legend-marker'>
+			<h2>Election Issue</h2>
 		</div>
+	</div>
+
+	<div class="map-overlay inset-0" id="info">
+		<Modal><Content/></Modal>
 	</div>
 </div>
 
@@ -241,13 +280,19 @@
 		position: relative;
 		height: min-content;
 	}
-	#legend-sentiment {
+	#legend-marker {
 		position: relative;
 		height: min-content;
 	}
 
 	h2 {
 		font-weight: bold;
+	}
+
+	#info {
+		position: absolute;
+		width: fit-content;
+		height: fit-content;
 	}
 
 </style>

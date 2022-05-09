@@ -5,7 +5,7 @@
     import { json } from 'd3';
 
     let data_url = "/sa2-diversity-sentiment-fit.json";
-    //let data_url = 'http://172.26.134.62/api/analytics/diversity/sentiment/diversity/'
+    //let data_url = 'http://melbourneliveability.live/api/analytics/diversity/sentiment/diversity/'
 
     let points = [];
     let svg;
