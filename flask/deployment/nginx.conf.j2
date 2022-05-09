@@ -6,7 +6,7 @@ upstream app_server {
 
 server {
     listen 80;
-    server_name melbourneliveability.live www.melbourneliveability.live {{ ansible_default_ipv4["address"] }}};
+    server_name melbourneliveability.live www.melbourneliveability.live {{ ansible_default_ipv4["address"] }};
     
     # path for static files
     root /home/ubuntu/frontend/public;
