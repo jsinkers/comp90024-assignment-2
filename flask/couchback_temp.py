@@ -138,6 +138,16 @@ class CouchInterface:
 
         return results
 
+    def grouped_results_singlekey(self, db_name, design_doc, view_name):
+        # key is no longer a list of two elements as before
+        db = self.server[db_name]
+        path = design_doc + '/' + view_name
+        results = []
+        for item in db.view(path, group=True):
+            results.append({item.key : item.value})
+
+        return results
+
     def non_grouped_results(self, db_name, design_doc, view_name):
         """
         a database has a design document and view under the path /db_name/_design/design_doc/_view/view_name
@@ -147,6 +157,16 @@ class CouchInterface:
         results = []
         for item in db.view(path):
             results.append({item.key[1] : item.value})
+
+        return results
+
+    def non_grouped_results_singlekey(self, db_name, design_doc, view_name):
+        # key is no longer a list of two elements as before
+        db = self.server[db_name]
+        path = design_doc + '/' + view_name
+        results = []
+        for item in db.view(path):
+            results.append({item.key : item.value})
 
         return results
 

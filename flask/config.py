@@ -18,4 +18,4 @@ COUCHDB_TWITTER_DB = "twitter_historic"
 DESIGN_DOC = "tweets"
 # view name
 VIEW_FOR_ELECTION = "election_sentiment_stats"
-VIEW_FOR_SOCIAL = "social_tweets"
+VIEW_FOR_SOCIAL = "socioeconomic_sentiment_stats"

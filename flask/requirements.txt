@@ -4,4 +4,4 @@ flask-restful
 geopandas
 gunicorn
 pandas
-sklearn
+shapely
