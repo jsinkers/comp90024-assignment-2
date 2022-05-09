@@ -5,6 +5,8 @@
 	export let title;
 	// data variable of interest
 	export let variable;
+	import { pointer } from 'd3';
+	import {fade} from 'svelte/transition';
 
 	const points = [
 		{ issue: "health", count: 200, compound: -0.1},
@@ -21,7 +23,6 @@
 	for (let i = 0; i < points.length; i++) {
 		xTicks.push(points[i].issue)
 	}
-	console.log(xTicks);
 	let yTicks;
 	let ys = [];
 	if (variable === 'compound') {
@@ -35,17 +36,12 @@
 			ys.push(points[i].count)
 		}
 	}
-	console.log(yTicks);
 	console.log(Math.min.apply(null, yTicks));
 
 	const padding = { top: 20, right: 15, bottom: 20, left: 25 };
 
 	let width = 500;
 	let height = 200;
-
-	function formatMobile(tick) {
-		return "'" + tick.toString().slice(-2);
-	}
 
 	$: xScale = scaleLinear()
 			.domain([0, xTicks.length])
@@ -58,7 +54,24 @@
 	$: innerWidth = width - (padding.left + padding.right);
 	$: barWidth = innerWidth / xTicks.length - 10;
 
-	console.log(width);
+	let tooltip;
+	let opacity;
+	let tooltip_data;
+	let tooltip_left;
+	let tooltip_top;
+	let mouse_x;
+	let mouse_y;
+	let selected_point = undefined;
+
+	const setMousePosition = function(event) {
+		mouse_x = event.clientX;
+		mouse_y = event.clientY;
+	}
+
+	let mousemove = function(d) {
+		tooltip_left = (pointer(d)[0] + 20) + "px";
+		tooltip_top = (pointer(d)[1] - 20 ) + "px";
+	}
 </script>
 
 <h2>{title}</h2>
@@ -92,10 +105,18 @@
 						y="{Math.min(yScale(point), yScale(0))}"
 						height="{Math.abs(yScale(0)-yScale(point))}"
 						width="{barWidth}"
+						on:mousemove={mousemove}
+						on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
+						on:mouseout={() => {selected_point = undefined}}
 				></rect>
 			{/each}
 		</g>
 	</svg>
+	{#if selected_point != undefined}
+		<div transition:fade class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
+			<p>{variable}: {selected_point}</p>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -144,5 +165,16 @@
 		fill: #a11;
 		stroke: none;
 		opacity: 0.65;
+	}
+
+	.tooltip {
+		position: absolute;
+		text-align: center;
+		padding: 10px;
+		background: white;
+		font-size: small;
+		border: 1px solid;
+		border-radius: 4px;
+		pointer-events: none;
 	}
 </style>
