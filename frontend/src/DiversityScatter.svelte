@@ -2,7 +2,7 @@
 <script>
     import { onMount } from 'svelte';
     import { scaleLinear } from 'd3-scale';
-    import { json } from 'd3';
+    import { select, pointer, json } from 'd3';
 
     import { writable } from 'svelte/store';
     import Modal, {bind} from 'svelte-simple-modal';
@@ -33,6 +33,44 @@
     $: xTicks = [0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1]
     $: yTicks = [-1, -0.5, 0, 0.5, 1]
 
+    let tooltip;
+    let opacity;
+    let tooltip_data;
+    let tooltip_left;
+    let tooltip_top;
+    let mouse_x;
+    let mouse_y;
+    let selected_point = undefined;
+
+    const setMousePosition = function(event) {
+        mouse_x = event.clientX;
+        mouse_y = event.clientY;
+    }
+
+    let mouseover = function(event) {
+        opacity = 1;
+    }
+
+    let mousemove = function(d) {
+        let x = xScale.invert(d.currentTarget.cx.baseVal.value);
+        let y = yScale.invert(d.currentTarget.cy.baseVal.value);
+        tooltip_data = `<p>SA2 Diversity measure: ${x}</p><p>Mean tweet sentiment: ${y}</p>`;
+        console.log(tooltip_data);
+        tooltip_left = (pointer(d)[0] + 100) + "px";
+        tooltip_top = (pointer(d)[1] - 20) + "px";
+    }
+
+    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+    let mouseleave = function(d) {
+        opacity = 1
+/*
+        tooltip
+            .transition()
+            .duration(200)
+            .style("opacity", 0)
+*/
+    }
+
     onMount(() => {
         resize();
     });
@@ -55,7 +93,6 @@
         });
         return points;
     }
-
 </script>
 
 <svelte:window on:resize='{resize}'/>
@@ -93,7 +130,12 @@
             {:then points}
 
                 {#each points as point}
-                    <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'/>
+                    <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'
+                            on:mousemove={mousemove}
+                            on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
+                            on:mouseout={() => {selected_point = undefined}}/>
+
+<!--                    on:mouseover={mouseover} on:mouseleave={mouseleave} on:mousemove={mousemove}-->
                 {/each}
                 <g id="fit-line">
                     <line x1='{xScale(points[0].prop_spk_other_lang)}'
@@ -105,11 +147,20 @@
 
                 </text>
 
+
+
             {:catch error}
                 <p>{error.message}</p>
             {/await}await
-
         </svg>
+        {#if selected_point != undefined}
+            <div class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
+                <p>Diversity measure: {Math.round(selected_point.prop_spk_other_lang*1000)/10}%</p>
+                <p>Mean sentiment: {selected_point.compound}</p>
+                <!--{tooltip_data}-->
+                <!--top={tooltip_top} left={tooltip_left}-->
+            </div>
+        {/if}
     </div>
     <div class="flex-item">
         <p>Diversity measure: Proportion of people who speak a language other than English at home (Census 2016)</p>
@@ -203,5 +254,32 @@
         padding: 1rem;
         @apply relative flex items-center justify-center mx-auto
         rounded-full hover:bg-blue-600 hover:text-white transition-all duration-200 ease-linear cursor-pointer;
+    }
+
+    .tooltip {
+        /*
+        background-color: white;
+        border: 1px solid;
+        border-radius: 5px;
+        padding: 10px;
+        */
+
+        position: absolute;
+        text-align: center;
+        /*
+        width: 60px;
+        height: 28px;
+        */
+        padding: 2px;
+        font: 12px sans-serif;
+        background: white;
+        border: 1px solid;
+        border-radius: 4px;
+        pointer-events: none;
+
+        /*
+        position: fixed;
+        background-color: white;
+        */
     }
 </style>
