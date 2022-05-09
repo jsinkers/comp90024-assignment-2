@@ -1,0 +1,4 @@
+# Ansible requirements: run as ansible-galaxy -r ansible-requirements.yml
+- name: openstack.cloud
+- name: community.general
+- name: community.docker
