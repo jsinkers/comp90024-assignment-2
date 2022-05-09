@@ -121,25 +121,31 @@
 			});
         }, 2000);
 
-		map.on('click', 'tweets-points', (e) => {
+		// Create a popup, but don't add it to the map yet.
+		const popup = new mapbox.Popup({
+			closeButton: false,
+			closeOnClick: false
+		});
+		map.on('mouseenter', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = 'pointer';
 			const coordinates = e.features[0].geometry.coordinates.slice();
-			const description = e.features[0].properties.text;
+			const popupSentiment = e.features[0].properties.compound;
+			const popupTweet = e.features[0].properties.text;
+			let description = `<p><b>Tweet:</b> ${popupTweet}</p>`;
+			description += `<p><b>Sentiment:</b> ${popupSentiment}</p>`;
 
 			while(Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
 				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
 			}
 
-			new mapbox.Popup()
-				.setLngLat(coordinates)
-				.setHTML(description)
-				.addTo(map);
+			popup.setLngLat(coordinates)
+					.setHTML(description)
+					.addTo(map);
 		});
 
-		map.on('mouseenter', 'tweets-points', () => {
-			map.getCanvas().style.cursor = 'pointer';
-		});
 		map.on('mouseleave', 'tweets-points', () => {
 			map.getCanvas().style.cursor = '';
+			popup.remove();
 		});
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
