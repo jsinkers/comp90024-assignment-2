@@ -131,6 +131,7 @@
 			closeOnClick: false
 		});
 
+		// add popups on tweet markers
 		map.on('mouseenter', 'tweets-points', (e) => {
 			map.getCanvas().style.cursor = 'pointer';
 			const coordinates = e.features[0].geometry.coordinates.slice();
@@ -147,8 +148,7 @@
 
 			popup.setLngLat(coordinates)
 					.setHTML(description)
-				//.setDOMContent(elementPopup)
-				.addTo(map);
+					.addTo(map);
 		});
 
 		map.on('mouseleave', 'tweets-points', (e) => {
@@ -156,16 +156,16 @@
 			popup.remove();
 		});
 
-/*
-		map.on('mouseenter', 'tweets-points', () => {
-			map.getCanvas().style.cursor = 'pointer';
+		// Add info for SA2: prop to legend
+		map.on('mousemove', (event) => {
+			const sa2 = map.queryRenderedFeatures(event.point, {
+				layers: ['sa2-fill']
+			});
+			document.getElementById('pd').innerHTML = sa2.length
+					? `<p>${sa2[0].properties.SA2_NAME16}</p><p>IRSAD: ${sa2[0].properties.irsad_score}</p>`
+					: "";
 		});
-*/
-/*
-		map.on('mouseleave', 'tweets-points', () => {
-			map.getCanvas().style.cursor = '';
-		});
-*/
+
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
 		choropleth_layers.forEach((layer, i) => {
@@ -242,6 +242,7 @@
 		<div id='legend-marker'>
 			<h2>Election Issue</h2>
 		</div>
+		<div id='features'><h2>SA2 SEIFA</h2><div id='pd'></div></div>
 	</div>
 
 </div>
