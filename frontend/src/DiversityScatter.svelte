@@ -2,7 +2,7 @@
 <script>
     import { onMount } from 'svelte';
     import { scaleLinear } from 'd3-scale';
-    import { select, pointer, json } from 'd3';
+    import { pointer, json } from 'd3';
     import {fade} from 'svelte/transition';
 
     import { writable } from 'svelte/store';
@@ -36,7 +36,6 @@
 
     let tooltip;
     let opacity;
-    let tooltip_data;
     let tooltip_left;
     let tooltip_top;
     let mouse_x;
@@ -48,28 +47,9 @@
         mouse_y = event.clientY;
     }
 
-    let mouseover = function(event) {
-        opacity = 1;
-    }
-
     let mousemove = function(d) {
-        let x = xScale.invert(d.currentTarget.cx.baseVal.value);
-        let y = yScale.invert(d.currentTarget.cy.baseVal.value);
-        tooltip_data = `<p>SA2 Diversity measure: ${x}</p><p>Mean tweet sentiment: ${y}</p>`;
-        console.log(tooltip_data);
         tooltip_left = (pointer(d)[0] + 100) + "px";
         tooltip_top = (pointer(d)[1] - 20) + "px";
-    }
-
-    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-    let mouseleave = function(d) {
-        opacity = 1
-/*
-        tooltip
-            .transition()
-            .duration(200)
-            .style("opacity", 0)
-*/
     }
 
     onMount(() => {
