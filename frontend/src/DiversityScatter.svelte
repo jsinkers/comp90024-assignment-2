@@ -58,8 +58,6 @@
 
     function resize() {
         ({ width, height } = svg.getBoundingClientRect());
-        console.log(height);
-        console.log(width);
     }
 
     async function fetchData() {
@@ -70,7 +68,6 @@
                     'fit': dataset.fit[i]}
                 points.push(point);
             }
-            console.log(points);
         });
         return points;
     }

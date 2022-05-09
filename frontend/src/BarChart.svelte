@@ -23,7 +23,6 @@
 	for (let i = 0; i < points.length; i++) {
 		xTicks.push(points[i].issue)
 	}
-	console.log(xTicks);
 	let yTicks;
 	let ys = [];
 	if (variable === 'compound') {
@@ -37,7 +36,6 @@
 			ys.push(points[i].count)
 		}
 	}
-	console.log(yTicks);
 	console.log(Math.min.apply(null, yTicks));
 
 	const padding = { top: 20, right: 15, bottom: 20, left: 25 };
@@ -73,7 +71,6 @@
 	let mousemove = function(d) {
 		tooltip_left = (pointer(d)[0] + 20) + "px";
 		tooltip_top = (pointer(d)[1] - 20 ) + "px";
-		console.log(tooltip_left);
 	}
 </script>
 
