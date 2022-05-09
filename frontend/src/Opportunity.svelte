@@ -20,7 +20,7 @@
 
 <style>
     .container {
-        @apply h-full w-full;
+        @apply h-full w-10/12;
     }
 
     .button {

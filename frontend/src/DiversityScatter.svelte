@@ -4,6 +4,13 @@
     import { scaleLinear } from 'd3-scale';
     import { json } from 'd3';
 
+    import { writable } from 'svelte/store';
+    import Modal, {bind} from 'svelte-simple-modal';
+    import Popup from './InfoDiversityChart.svelte';
+
+    const modal = writable(null);
+    const showModal = () => modal.set(bind(Popup, {}));
+
     let data_url = "/sa2-diversity-sentiment-fit.json";
     //let data_url = 'http://melbourneliveability.live/api/analytics/diversity/sentiment/diversity/'
 
@@ -53,7 +60,7 @@
 
 <svelte:window on:resize='{resize}'/>
 <!--<div class="relative flex items-center justify-center flex-col h-full w-full p-2 bg-white bg-opacity-30 rounded-2xl backdrop-filter">-->
-<div class="container">
+<div class="scatter-container">
     <div class="flex-item">
         <h1>Tweet sentiment vs diversity</h1>
     </div>
@@ -109,14 +116,28 @@
     </div>
 </div>
 
+<div id="info">
+    <Modal show={$modal}>
+        <span class="fa-solid fa-info-circle icon" on:click={showModal}></span>
+    </Modal>
+</div>
+
 <style>
-    .container {
-        @apply h-full w-full;
+    .scatter-container {
+        @apply h-full w-10/12;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
         justify-content: center;
         align-content: center;
+
+    }
+    .chart {
+        justify-content: center;
+    }
+
+    svg {
+        margin: 0 auto;
     }
 
     .flex-item:nth-child(1) {
@@ -168,5 +189,19 @@
 
     h1 {
         @apply text-xl
+    }
+
+    #info {
+        @apply z-20 bg-transparent inset-0 left-4 top-4;
+        position: absolute;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    .icon {
+        font-size: 1.5em;
+        padding: 1rem;
+        @apply relative flex items-center justify-center mx-auto
+        rounded-full hover:bg-blue-600 hover:text-white transition-all duration-200 ease-linear cursor-pointer;
     }
 </style>
