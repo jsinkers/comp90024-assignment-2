@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import { scaleLinear } from 'd3-scale';
     import { select, pointer, json } from 'd3';
+    import {fade} from 'svelte/transition';
 
     import { writable } from 'svelte/store';
     import Modal, {bind} from 'svelte-simple-modal';
@@ -154,11 +155,9 @@
             {/await}await
         </svg>
         {#if selected_point != undefined}
-            <div class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
+            <div transition:fade class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
                 <p>Diversity measure: {Math.round(selected_point.prop_spk_other_lang*1000)/10}%</p>
                 <p>Mean sentiment: {selected_point.compound}</p>
-                <!--{tooltip_data}-->
-                <!--top={tooltip_top} left={tooltip_left}-->
             </div>
         {/if}
     </div>
@@ -257,29 +256,13 @@
     }
 
     .tooltip {
-        /*
-        background-color: white;
-        border: 1px solid;
-        border-radius: 5px;
-        padding: 10px;
-        */
-
         position: absolute;
         text-align: center;
-        /*
-        width: 60px;
-        height: 28px;
-        */
-        padding: 2px;
-        font: 12px sans-serif;
+        padding: 10px;
         background: white;
+        font-size: small;
         border: 1px solid;
         border-radius: 4px;
         pointer-events: none;
-
-        /*
-        position: fixed;
-        background-color: white;
-        */
     }
 </style>
