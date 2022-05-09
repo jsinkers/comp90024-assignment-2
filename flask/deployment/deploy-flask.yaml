@@ -5,7 +5,7 @@
   roles:
     - role: openstack-common
 
-- hosts: database-2
+- hosts: database
   vars_files:
     - host_vars/flask.yaml
   vars:
