@@ -16,6 +16,9 @@
 	let container;
 	let map;
 
+	const modal = writable(null);
+	const showModal = () => modal.set(bind(DiversityPopup, {}));
+
 	function load() {
 		const choropleth_layers = [
 			"0-10%",
@@ -48,17 +51,17 @@
 			zoom,
 		});
 
-        setTimeout(() => {
-            map.addSource('sa2', {
-                'type':'geojson',
-                'data':'http://melbourneliveability.live/api/analytics/diversity/language/'
-            });
-            map.addLayer({
-                'id':'sa2-fill',
-                'type':'fill',
-                'source':'sa2',
-                'layout':{},
-                'paint':{
+		setTimeout(() => {
+			map.addSource('sa2', {
+				'type': 'geojson',
+				'data': 'http://melbourneliveability.live/api/analytics/diversity/language/'
+			});
+			map.addLayer({
+				'id': 'sa2-fill',
+				'type': 'fill',
+				'source': 'sa2',
+				'layout': {},
+				'paint': {
 					'fill-color': [
 						'interpolate',
 						['linear'],
@@ -82,18 +85,18 @@
 						0.8,
 						'#723122'
 					],
-                    'fill-opacity':0.7
-                },
-                'filter': ['==', '$type', 'Polygon']
-            });
-            map.addLayer({
-                'id': 'sa2-outline',
-                'type': 'line',
-                'source': 'sa2',
-                'layout': {},
-                'paint': {
-                    'line-color': '#000',
-                    'line-width': 1
+					'fill-opacity': 0.7
+				},
+				'filter': ['==', '$type', 'Polygon']
+			});
+			map.addLayer({
+				'id': 'sa2-outline',
+				'type': 'line',
+				'source': 'sa2',
+				'layout': {},
+				'paint': {
+					'line-color': '#000',
+					'line-width': 1
 				},
 				'filter': ['==', '$type', 'Polygon']
 			});
@@ -110,37 +113,54 @@
 					'circle-radius': 5,
 					'circle-color': ["rgb",
 						// red: if compound < 0 then red is 0
-						['*', 255, ['max', 0, ['get', 'compound'] ] ],
+						['*', 255, ['max', 0, ['get', 'compound']]],
 						// green: if compound > 0 then green is 0
-						['*', -255, ['min', 0, ['get', 'compound'] ] ],
+						['*', -255, ['min', 0, ['get', 'compound']]],
 						// blue:
 						40
 					],
 					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
-        }, 2000);
+		}, 2000);
 
-		map.on('click', 'tweets-points', (e) => {
+		// Create a popup, but don't add it to the map yet.
+		const popup = new mapbox.Popup({
+			closeButton: false,
+			closeOnClick: false
+		});
+		// add popups on tweet markers
+		map.on('mouseenter', 'tweets-points', (e) => {
+			map.getCanvas().style.cursor = 'pointer';
 			const coordinates = e.features[0].geometry.coordinates.slice();
-			const description = e.features[0].properties.text;
+			const popupSentiment = e.features[0].properties.compound;
+			const popupTweet = e.features[0].properties.text;
+			let description = `<p><b>Tweet:</b> ${popupTweet}</p>`;
+			description += `<p><b>Sentiment:</b> ${popupSentiment}</p>`;
 
-			while(Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
 				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
 			}
 
-			new mapbox.Popup()
-				.setLngLat(coordinates)
-				.setHTML(description)
-				.addTo(map);
+			popup.setLngLat(coordinates)
+					.setHTML(description)
+					.addTo(map);
 		});
 
-		map.on('mouseenter', 'tweets-points', () => {
-			map.getCanvas().style.cursor = 'pointer';
-		});
 		map.on('mouseleave', 'tweets-points', () => {
 			map.getCanvas().style.cursor = '';
+			popup.remove();
 		});
+		// Add info for SA2: prop to legend
+		map.on('mousemove', (event) => {
+			const sa2 = map.queryRenderedFeatures(event.point, {
+				layers: ['sa2-fill']
+			});
+			document.getElementById('pd').innerHTML = sa2.length
+				? `<p>${sa2[0].properties.name}</p><p>${Math.round(sa2[0].properties.prop *1000)/10}%</p>`
+				: "";
+		});
+
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
 		choropleth_layers.forEach((layer, i) => {
@@ -176,8 +196,6 @@
 		if (map) map.remove();
 	});
 
-	const modal = writable(null);
-	const showModal = () => modal.set(bind(DiversityPopup, {}));
 </script>
 
 <!-- this special element will be explained in a later section -->
@@ -210,6 +228,7 @@
 		<div id='legend-sentiment'>
 			<h2>Sentiment</h2>
 		</div>
+		<div id='features'><h2>SA2 Diversity</h2><div id='pd'></div></div>
 	</div>
 </div>
 <div class="map-overlay " id="info">
