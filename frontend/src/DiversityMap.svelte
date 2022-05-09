@@ -183,7 +183,7 @@
 	/>
 </svelte:head>
 
-<div bind:this={container}>
+<div id="map" bind:this={container}>
 	{#if map}
 		<slot />
 	{/if}
@@ -207,12 +207,16 @@
 	</div>
 </div>
 
+<!--
+<div class="map-overlay inset-0" id="info">
+	<Modal><Content/></Modal>
+</div>
+-->
 <style>
 
-	div {
-		@apply h-full w-11/12 absolute right-0 top-0 z-10;
+	#map {
+		@apply h-full w-full absolute right-0 top-0 z-10;
 	}
-
 
 	/**
 	* Set rules for how the map overlays
@@ -220,7 +224,7 @@
 	* on the page. */
 	.map-overlay {
 		position: absolute;
-		bottom: 0;
+		top: 0;
 		right: 0;
 		background: #fff;
 		margin-right: 20px;
@@ -236,6 +240,7 @@
 		height: min-content;
 		margin-bottom: 40px;
 		width: 120px;
+		@apply z-20;
 	}
 	#legend-choropleth {
 		position: relative;

@@ -6,13 +6,11 @@
 <div class="container">
 	<div class="flex-item">
 		<div class="chart">
-			<!-- TODO: bar chart -->
 			<BarChart title="Tweet count by election issue" variable="count"/>
 		</div>
 	</div>
 	<div class="flex-item">
 		<div class="chart">
-			<!-- TODO: bar chart -->
 			<BarChart title="Mean tweet sentiment by election issue" variable="compound"/>
 		</div>
 	</div>
@@ -20,7 +18,7 @@
 
 <style>
    .container {
-        @apply h-full w-11/12 absolute right-0 top-0;
+        @apply h-full w-full;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;

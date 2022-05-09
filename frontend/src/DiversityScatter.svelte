@@ -111,7 +111,7 @@
 
 <style>
     .container {
-        @apply h-full w-11/12 absolute right-0 top-0;
+        @apply h-full w-full;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;

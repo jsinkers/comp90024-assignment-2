@@ -22,9 +22,9 @@
         </header>
 
         <main>
-            <div class="container">
+            <div class="body-container">
                 <Route>
-                    <Landing2/>-->
+                    <Landing2/>
                 </Route>
                 <Route path="opportunity/*">
                     <!-- TODO: page displays information about the indicator, data used - allow selection of visualisation -->
@@ -69,4 +69,9 @@
         display: inline-block;
     }
 
+    .body-container {
+        @apply h-full w-11/12 absolute right-0 top-0 z-10;
+        display: flex;
+        justify-content: center;
+    }
 </style>

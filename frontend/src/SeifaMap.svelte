@@ -218,11 +218,10 @@
 </div>
 -->
 
-<div bind:this={container}>
+<div id="map" bind:this={container}>
 	{#if map}
 		<slot />
 	{/if}
-	<!--<div class='map-overlay' id='description'><h2>Diversity</h2><div id='pd'><p>Hover over a state!</p></div></div>-->
 	<div class="map-overlay" id="legend">
 		<style>
 			.legend-key {
@@ -248,8 +247,8 @@
 
 <style>
 
-	div {
-		@apply h-full w-11/12 absolute right-0 top-0 z-10;
+	#map {
+		@apply h-full w-full absolute right-0 top-0 z-10;
 	}
 
 
@@ -259,7 +258,7 @@
 	* on the page. */
 	.map-overlay {
 		position: absolute;
-		bottom: 0;
+		top: 0;
 		right: 0;
 		background: #fff;
 		margin-right: 20px;
@@ -275,11 +274,13 @@
 		height: min-content;
 		margin-bottom: 40px;
 		width: 120px;
+		@apply z-20;
 	}
 	#legend-choropleth {
 		position: relative;
 		height: min-content;
 	}
+
 	#legend-marker {
 		position: relative;
 		height: min-content;
@@ -290,6 +291,7 @@
 	}
 
 	#info {
+		@apply z-20;
 		position: absolute;
 		width: fit-content;
 		height: fit-content;
