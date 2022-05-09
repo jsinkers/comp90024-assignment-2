@@ -49,10 +49,10 @@
     chdir: /home/ubuntu/flask
     conf: /home/ubuntu/flask/gunicorn.conf.py
     pid: /home/ubuntu/flask/pidfile
-- name: copy nginx config
+- name: copy nginx config as template
   become: yes
-  ansible.builtin.copy:
-    src: "{{ playbook_dir }}/nginx.conf"
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/nginx.conf.j2"
     dest: /etc/nginx/sites-available/flask.conf
 - name: create symbolic link to nginx config
   become: yes
