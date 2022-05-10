@@ -82,7 +82,7 @@
             map.addSource('sa2', {
                 'type':'geojson',
 				// TODO: replace with API URL
-                'data':'/sa2-seifa-lang-small.geojson'
+                'data':'http://melbourneliveability.live/api/analytics/socioeconomic/seifa/'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -161,7 +161,7 @@
 					layers: ['sa2-fill']
 				});
 				document.getElementById('pd').innerHTML = sa2.length
-						? `<p>${sa2[0].properties.SA2_NAME16}</p><p>IRSAD: ${sa2[0].properties.irsad_score}</p>`
+						? `<p>${sa2[0].properties.name}</p><p>IRSAD: ${sa2[0].properties.irsad_score}</p>`
 						: "";
 			}
 		});
