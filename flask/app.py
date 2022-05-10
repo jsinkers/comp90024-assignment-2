@@ -15,6 +15,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 
 api = Api(app)
+cache = Cache(app)
 
 analytics = {
     'diversity': {'description': 'Diversity and the federal election'},
@@ -406,7 +407,6 @@ app.config['COUCHDB'] = couchdb_server
 app.config['TWITTER_DB'] = couchdb_server[app.config["COUCHDB_TWITTER_DB"]]
 app.logger.debug(app.config['TWITTER_DB'])
 app.logger.info("Connected to couchDB")
-cache = Cache(app)
 
 if __name__ == "__main__":
     app.run(debug=app.config["DEBUG"])
