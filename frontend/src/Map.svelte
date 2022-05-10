@@ -72,36 +72,45 @@
                 'filter': ['==', '$type', 'Polygon']
             });
 			map.loadImage(
-				'2021 Twitter logo - white.png',
+				'2021 Twitter logo - blue.png',
 				(error, image) => {
 				if (error) throw error;
 				// Add the image to the map style.
 				map.addImage('tweet', image);
-				map.addSource('tweets', {
+				map.addSource('positives', {
 					'type': 'geojson',
 					'data': 'twitter-melb-filtered.geojson'
 				});
 				map.addLayer({
 					'id': 'tweets-points',
 					'type': 'symbol',
-					'source': 'tweets',
+					'source': 'positives',
 					'layout': {
 						'icon-image': 'tweet',
 						'icon-size': 0.015,
 						'icon-allow-overlap': true
 					},
-					'paint': {
-						'circle-radius': 5,
-						'circle-color': ["rgb",
-							// red: if compound < 0 then red is 0
-							['*', 255, ['max', 0, ['get', 'compound'] ] ],
-							// green: if compound > 0 then green is 0
-							['*', -255, ['min', 0, ['get', 'compound'] ] ],
-							// blue:
-							40
-						],
-						'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
-					 }
+				});
+				});
+				map.loadImage(
+				'2021 Twitter logo - red.png',
+				(error, image) => {
+				if (error) throw error;
+				// Add the image to the map style.
+				map.addImage('tweet', image);
+				map.addSource('negatives', {
+					'type': 'geojson',
+					'data': 'twitter-melb-filtered.geojson'
+				});
+				map.addLayer({
+					'id': 'tweets-points',
+					'type': 'symbol',
+					'source': 'negatives',
+					'layout': {
+						'icon-image': 'tweet',
+						'icon-size': 0.015,
+						'icon-allow-overlap': true
+					},
 				});
 				});
         }, 2000);
