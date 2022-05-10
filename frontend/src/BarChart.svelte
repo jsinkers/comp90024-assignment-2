@@ -5,7 +5,7 @@
 	export let title;
 	// data variable of interest
 	export let variable;
-	import { json, pointer } from 'd3';
+	import { json } from 'd3';
 	import {fade} from 'svelte/transition';
 
 	let data_url = "http://melbourneliveability.live/api/analytics/socioeconomic/election-issues/";
@@ -68,9 +68,9 @@
 		mouse_y = event.clientY;
 	}
 
-	let mousemove = function(d) {
-		tooltip_left = (pointer(d)[0] + 20) + "px";
-		tooltip_top = (pointer(d)[1] - 20 ) + "px";
+	let mousemove = function() {
+		tooltip_left = (mouse_x + 20) + "px";
+		tooltip_top = (mouse_y - 20) + "px";
 	}
 </script>
 
@@ -83,10 +83,15 @@
 		{:then chartData}
 			<!-- y axis -->
 			<g class="axis y-axis">
-				{#each chartData.yTicks as tick}
+				{#each chartData.yTicks as tick, i}
 					<g class="tick tick-{tick}" transform="translate(0, {yScale(tick)})">
 						<line x2="100%"></line>
 						<text y="-4">{tick}</text>
+						{#if variable === 'compound' && i === 0}
+							<text y="-4" x="+15">Negative</text>
+						{:else if variable === 'compound' && i === chartData.yTicks.length - 1}
+							<text y="-4" x="+15">Positive</text>
+						{/if}
 					</g>
 				{/each}
 			</g>
@@ -116,9 +121,13 @@
 			<p>{error.message}</p>
 		{/await}
 	</svg>
-	{#if selected_point != undefined}
+	{#if selected_point !== undefined}
 		<div transition:fade class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
-			<p>{variable}: {selected_point}</p>
+			{#if variable === 'compound'}
+				<p>{variable}: {Math.round(selected_point*100)/100}</p>
+			{:else}
+				<p>{variable}: {selected_point}</p>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -130,7 +139,6 @@
 
 	.chart {
 		width: 100%;
-		/*max-width: 500px;*/
 		margin: 0 auto;
 		display: flex;
 		justify-content: center;
@@ -139,7 +147,6 @@
 	svg {
 		display: block;
 		position: relative;
-		/*width: 100%;*/
 		overflow: visible;
 	}
 
@@ -174,7 +181,7 @@
 	}
 
 	.tooltip {
-		position: absolute;
+		position: fixed;
 		text-align: center;
 		padding: 10px;
 		background: white;

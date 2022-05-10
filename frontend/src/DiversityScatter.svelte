@@ -48,8 +48,8 @@
     }
 
     let mousemove = function(d) {
-        tooltip_left = (pointer(d)[0] + 100) + "px";
-        tooltip_top = (pointer(d)[1] - 20) + "px";
+        tooltip_left = (mouse_x + 100) + "px";
+        tooltip_top = (mouse_y - 20) + "px";
     }
 
     onMount(() => {
