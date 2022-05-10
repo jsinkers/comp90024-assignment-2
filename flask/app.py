@@ -21,15 +21,18 @@ analytics = {
     'socioeconomic': {'description': 'Socioeconomic index and the federal election'}
 }
 
+
 def create_couch_interface():
-    # initialize a CouchInterface object to retrive data from couchdb
+    # initialize a CouchInterface object to retrieve data from couchdb
     ci = CouchInterface(address=app.config["COUCHDB_IP"], port=str(app.config["COUCHDB_PORT"]),
-    username=app.config["COUCHDB_USER"], password=app.config["COUCHDB_PASSWORD"])
+                        username=app.config["COUCHDB_USER"], password=app.config["COUCHDB_PASSWORD"])
     return ci
+
 
 def abort_if_scenario_doesnt_exist(scenario):
     if scenario not in analytics:
         abort(404, message="Todo {} doesn't exist".format(scenario))
+
 
 def join_languages_and_polygons(languages, polygons):
     # create df for both query outputs, join them, and export as geojson (here use dict rather than string)
@@ -55,7 +58,7 @@ def join_languages_and_polygons(languages, polygons):
         try:
             output["sa2"] = str(sa2)
             output["name"] = value['SA2_NAME16']
-            rounded_polygon = [list(map(lambda x:round(x, 5), coords)) for coords in value['geometry'][0]]
+            rounded_polygon = [list(map(lambda x: round(x, 5), coords)) for coords in value['geometry'][0]]
             output["geometry"] = Polygon(rounded_polygon)
             del output[sa2]
         except(TypeError):
@@ -71,6 +74,7 @@ def join_languages_and_polygons(languages, polygons):
     # convert to (geo)json string and then load back to dict
     return json.loads(polygon_gdf.to_json())
 
+
 def tweets_to_geojson(valid_tweets):
     ## format a list of tweets queried from database to geojson (here use dict rather than string)
     ## get a list of re-structured tweet dict / json object
@@ -81,21 +85,23 @@ def tweets_to_geojson(valid_tweets):
         # convert tweet timestamp to python datatime
         # e.g. 'Sun Aug 03 08:25:21 +0000 2014' to 2014-08-03 08:25:21
         dtime = value['time']
-        new_dtime = datetime.strftime(datetime.strptime(dtime,'%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
+        new_dtime = datetime.strftime(datetime.strptime(dtime, '%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
 
         # convert to a point object
         coord = value['coord']
         coord = Point(coord)
 
-        tweets.append({"compound":value['compound'],
-        "created_at":new_dtime, "text":value['text'], "geometry":coord})
+        tweets.append({"compound": value['compound'],
+                       "created_at": new_dtime, "text": value['text'], "geometry": coord})
 
     ## convert to dataframe
-    tweets_df = pd.DataFrame(tweets); tweets_df.head()
+    tweets_df = pd.DataFrame(tweets);
+    tweets_df.head()
     ## convert to geopandas dataframe
     tweets_gdf = gpd.GeoDataFrame(tweets_df, geometry=tweets_df["geometry"])
     # convert to (geo)json string and then load back to dict
     return json.loads(tweets_gdf.to_json())
+
 
 def language_proportion_dict(sa2_languages):
     ## Build a dict for language proportion using sa2 code as keys
@@ -120,27 +126,59 @@ def language_proportion_dict(sa2_languages):
 def index():
     return send_from_directory('../frontend/public', 'index.html')
 
+
 # serve static files for the Svelte app
 @app.route("/<path:path>")
 def home(path):
     return send_from_directory('../frontend/public', path)
 
+
 # Testing route
-@app.route("/twitter_database_info")
+@app.route("/api/twitter_database_info")
 def database_status():
     return app.config['TWITTER_DB'].info()
+
 
 class Analytics(Resource):
     def get(self):
         return analytics
 
-class Scenario(Resource):
-    def get(self):
-        return analytics
 
-# general info
-api.add_resource(Analytics, '/api/analytics/')
-api.add_resource(Scenario, '/api/analytics/')
+class API(Resource):
+    def get(self):
+        return [{'resource': 'analytics',
+                 'description': 'analytic scenarios exploring liveability in Melbourne',
+                 'format': 'json'},
+                {'resource': 'twitter_db_info',
+                 'description': 'information about the state of the tweet database',
+                 'format': 'json'}]
+
+
+class Diversity(Resource):
+    def get(self):
+        return [{'resource': 'tweets',
+                 'description': 'election themed tweets, including sentiment analysis and SA2 location if coordinates were available',
+                 'format': 'geojson'},
+                {'resource': 'language',
+                 'description': 'polygons of SA2 areas in greater Melbourne with data on diversity based on language spoken',
+                 'format': 'geojson'},
+                {'resource': 'sentiment',
+                 'description': 'election themed tweet sentiment analysis data aggregated by SA2 with diversity data',
+                 'format': 'json'}]
+
+
+class Socioeconomic(Resource):
+    def get(self):
+        return [{'resource': 'tweets',
+                 'description': 'election themed tweets, including sentiment analysis, election issue, and SA2 location if coordinates were available',
+                 'format': 'geojson'},
+                {'resource': 'language',
+                 'description': 'polygons of SA2 areas in greater Melbourne with data on socioeconomic status',
+                 'format': 'geojson'},
+                {'resource': 'election-issues',
+                 'description': 'election themed tweets aggregated by election issue, including mean compound sentiment',
+                 'format': 'json'}]
+
 
 class Tweets(Resource):
     # Return geojson format:
@@ -148,13 +186,12 @@ class Tweets(Resource):
     #   "properties": { "compound": -0.5362, "text": "#auspol tweets",},
     #   "geometry": { "type": "Point", "coordinates": [ 144.95379890000001, -37.7740309 ] } }
     def get(self):
-        # initialize a CouchInterface object to retrive data from couchdb
+        # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
-
-        ci = CouchInterface(address='172.26.134.62', port='5984', username='admin', password='password')
         valid_tweets = ci.non_grouped_results(db_name="twitter_historic",
-        design_doc="tweets", view_name="election_tweets")
+                                              design_doc="tweets", view_name="election_tweets")
         return tweets_to_geojson(valid_tweets)
+
 
 class Language(Resource):
     # Return geojson format:
@@ -171,6 +208,7 @@ class Language(Resource):
         # join two outputs, and output a geojson string
         return join_languages_and_polygons(sa2_languages, sa2_polygons)
 
+
 class Sentiment(Resource):
     # Return a dict (miniature dataframe):
     # {'sa2':sa2s, ‘mean_compound’: list, 'count':counts, ‘prop_spk_other_lang’: list}
@@ -181,7 +219,7 @@ class Sentiment(Resource):
         sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
         lang_prop_dict = language_proportion_dict(sa2_languages)
 
-        if(scenario_id=="diversity"):
+        if (scenario_id == "diversity"):
 
             # get queried results in a list of dict: e.g.
             # {'214021380': {'sum': -1.1561, 'count': 2, 'min': -0.6808, 'max': -0.4753, 'sumsqr': 0.68939873}}
@@ -191,7 +229,10 @@ class Sentiment(Resource):
             results = ci.grouped_results(db_name, design_doc, view_name)
 
             # convert into a dict of lists (like a dataframe)
-            sa2s = []; avgs = []; counts = []; lang_props=[]
+            sa2s = [];
+            avgs = [];
+            counts = [];
+            lang_props = []
             for result in results:
                 sa2 = list(result.keys())[0]
                 sa2s.append(sa2)
@@ -199,15 +240,11 @@ class Sentiment(Resource):
                 counts.append(result[sa2]['count'])
                 lang_props.append(lang_prop_dict[sa2])
 
-            results_zipped = {'sa2':sa2s, 'mean_compound':avgs, 'count':counts, 'prop_spk_other_lang':lang_props}
+            results_zipped = {'sa2': sa2s, 'mean_compound': avgs, 'count': counts, 'prop_spk_other_lang': lang_props}
             analytics[scenario_id]['returned_data'] = results_zipped
 
         return analytics[scenario_id]
 
-# election scenario
-api.add_resource(Tweets, '/api/analytics/diversity/tweets/')
-api.add_resource(Language, '/api/analytics/diversity/language/')
-api.add_resource(Sentiment, '/api/analytics/<string:scenario_id>/sentiment/')
 
 def tweets_to_geojson_SE(valid_tweets):
     ## to support the socioeconomic scenario
@@ -221,21 +258,23 @@ def tweets_to_geojson_SE(valid_tweets):
         # convert tweet timestamp to python datatime
         # e.g. 'Sun Aug 03 08:25:21 +0000 2014' to 2014-08-03 08:25:21
         dtime = value['time']
-        new_dtime = datetime.strftime(datetime.strptime(dtime,'%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
+        new_dtime = datetime.strftime(datetime.strptime(dtime, '%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
 
         # convert to a point object
         coord = value['coord']
         coord = Point(coord)
 
-        tweets.append({"issue":key, "compound":value['compound'],
-        "created_at":new_dtime, "text":value['text'], "geometry":coord})
+        tweets.append({"issue": key, "compound": value['compound'],
+                       "created_at": new_dtime, "text": value['text'], "geometry": coord})
 
     ## convert to dataframe
-    tweets_df = pd.DataFrame(tweets); tweets_df.head()
+    tweets_df = pd.DataFrame(tweets);
+    tweets_df.head()
     ## convert to geopandas dataframe
     tweets_gdf = gpd.GeoDataFrame(tweets_df, geometry=tweets_df["geometry"])
     # convert to (geo)json string and then load back to dict
     return json.loads(tweets_gdf.to_json())
+
 
 def join_seifa_and_polygons(languages, polygons):
     # create df for both query outputs, join them, and export as geojson (here use dict rather than string)
@@ -261,7 +300,7 @@ def join_seifa_and_polygons(languages, polygons):
         try:
             output["sa2"] = str(sa2)
             output["name"] = value['SA2_NAME16']
-            rounded_polygon = [list(map(lambda x:round(x, 5), coords)) for coords in value['geometry'][0]]
+            rounded_polygon = [list(map(lambda x: round(x, 5), coords)) for coords in value['geometry'][0]]
             output["geometry"] = Polygon(rounded_polygon)
             del output[sa2]
         except(TypeError):
@@ -277,6 +316,7 @@ def join_seifa_and_polygons(languages, polygons):
     # convert to (geo)json string and then load back to dict
     return json.loads(polygon_gdf.to_json())
 
+
 class SE_Tweets(Resource):
     # Return geojson format:
     # { "type": "Feature", “created_at”: xyz, "properties": {
@@ -287,9 +327,11 @@ class SE_Tweets(Resource):
     def get(self):
         ci = create_couch_interface()
         ci = CouchInterface(address='172.26.134.62', port='5984', username='admin', password='password')
-        valid_tweets = ci.non_grouped_results_singlekey(db_name="twitter_historic", design_doc="tweets", view_name="socioeconomic_tweets")
+        valid_tweets = ci.non_grouped_results_singlekey(db_name="twitter_historic", design_doc="tweets",
+                                                        view_name="socioeconomic_tweets")
 
         return tweets_to_geojson_SE(valid_tweets)
+
 
 class Seifa(Resource):
     # Return geojson format (using seifa score instead of prop_spk_other_lang):
@@ -304,6 +346,7 @@ class Seifa(Resource):
         # join two outputs, and output a geojson string
         return join_seifa_and_polygons(sa2_seifas, sa2_polygons)
 
+
 class Issues_Sentiment(Resource):
     # Return a dict (miniature dataframe):
     # { ‘mean_compound’: list, 'count': list, ‘issue’: list of all the issues}
@@ -312,7 +355,7 @@ class Issues_Sentiment(Resource):
         # initialize a CouchInterface object to retrive data from couchdb
         ci = create_couch_interface()
 
-        if(scenario_id=="socioeconomic"):
+        if (scenario_id == "socioeconomic"):
             # get queried results in a list of dict: e.g.
             # {'Aged care': { "sum":-33.6484, "count": 190, "min": -0.8442, "max": 0.6597, "sumsqr": 36.8765}}
             db_name = app.config["COUCHDB_TWITTER_DB"]
@@ -321,24 +364,35 @@ class Issues_Sentiment(Resource):
             results = ci.grouped_results_singlekey(db_name, design_doc, view_name)
 
             # convert into a dict of lists (like a dataframe)
-            avgs = []; counts = []; issues=[]
+            avgs = [];
+            counts = [];
+            issues = []
             for result in results:
                 issue = list(result.keys())[0]
                 issues.append(issue)
                 avgs.append(result[issue]['sum'] / result[issue]['count'])
                 counts.append(result[issue]['count'])
 
-            results_zipped = {'issue':issues, 'mean_compound':avgs, 'count':counts}
+            results_zipped = {'issue': issues, 'mean_compound': avgs, 'count': counts}
             analytics[scenario_id]['returned_data'] = results_zipped
 
         return analytics[scenario_id]
 
 
+# Resources
+api.add_resource(API, '/api')
+# general info
+api.add_resource(Analytics, '/api/analytics')
+# election scenario
+api.add_resource(Diversity, '/api/analytics/diversity')
+api.add_resource(Tweets, '/api/analytics/diversity/tweets/')
+api.add_resource(Language, '/api/analytics/diversity/language/')
+api.add_resource(Sentiment, '/api/analytics/<string:scenario_id>/sentiment/')
 # socioeconomic scenario
+api.add_resource(Socioeconomic, '/api/analytics/socioeconomic/')
 api.add_resource(SE_Tweets, '/api/analytics/socioeconomic/tweets/')
 api.add_resource(Seifa, '/api/analytics/socioeconomic/seifa/')
 api.add_resource(Issues_Sentiment, '/api/analytics/<string:scenario_id>/election-issues/')
-
 
 # connect to database
 couchdb_url = f'http://{app.config["COUCHDB_USER"]}:{app.config["COUCHDB_PASSWORD"]}@{app.config["COUCHDB_IP"]}:{app.config["COUCHDB_PORT"]}/'
