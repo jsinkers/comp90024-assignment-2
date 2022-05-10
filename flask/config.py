@@ -19,3 +19,7 @@ DESIGN_DOC = "tweets"
 # view name
 VIEW_FOR_ELECTION = "election_sentiment_stats"
 VIEW_FOR_SOCIAL = "socioeconomic_sentiment_stats"
+# caching
+CACHE_TYPE = "SimpleCache"
+# 5 minutes default cache time
+CACHE_DEFAULT_TIMEOUT = 300

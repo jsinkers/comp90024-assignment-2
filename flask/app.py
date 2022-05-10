@@ -1,5 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_restful import Resource, Api, abort
+from flask_caching import Cache
 import couchdb as db
 from couchback_temp import CouchInterface
 
@@ -186,6 +187,7 @@ class Tweets(Resource):
     # { "type": "Feature", “created_at”: xyz,
     #   "properties": { "compound": -0.5362, "text": "#auspol tweets",},
     #   "geometry": { "type": "Point", "coordinates": [ 144.95379890000001, -37.7740309 ] } }
+    @cache.cached()
     def get(self):
         # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
@@ -404,6 +406,7 @@ app.config['COUCHDB'] = couchdb_server
 app.config['TWITTER_DB'] = couchdb_server[app.config["COUCHDB_TWITTER_DB"]]
 app.logger.debug(app.config['TWITTER_DB'])
 app.logger.info("Connected to couchDB")
+cache = Cache(app)
 
 if __name__ == "__main__":
     app.run(debug=app.config["DEBUG"])

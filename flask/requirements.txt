@@ -1,6 +1,7 @@
 couchdb
 flask
 flask-restful
+Flask-Caching
 geopandas
 gunicorn
 pandas
