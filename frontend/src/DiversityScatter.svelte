@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import { scaleLinear } from 'd3-scale';
     import { pointer, json } from 'd3';
+    import { regressionLinear } from 'd3-regression';
     import {fade} from 'svelte/transition';
 
     import { writable } from 'svelte/store';
@@ -12,8 +13,7 @@
     const modal = writable(null);
     const showModal = () => modal.set(bind(Popup, {}));
 
-    let data_url = "/sa2-diversity-sentiment-fit.json";
-    //let data_url = 'http://melbourneliveability.live/api/analytics/diversity/sentiment/diversity/'
+    let data_url = 'http://melbourneliveability.live/api/analytics/diversity/sentiment/'
 
     let points = [];
     let svg;
@@ -41,6 +41,7 @@
     let mouse_x;
     let mouse_y;
     let selected_point = undefined;
+    let regression;
 
     const setMousePosition = function(event) {
         mouse_x = event.clientX;
@@ -48,8 +49,8 @@
     }
 
     let mousemove = function(d) {
-        tooltip_left = (pointer(d)[0] + 100) + "px";
-        tooltip_top = (pointer(d)[1] - 20) + "px";
+        tooltip_left = (mouse_x + 20) + "px";
+        tooltip_top = (mouse_y - 20) + "px";
     }
 
     onMount(() => {
@@ -62,19 +63,28 @@
 
     async function fetchData() {
         await json(data_url).then((dataset) => {
-            for (let i = 0; i < dataset.compound.length; i++) {
-                let point = {'compound': dataset.compound[i],
+            dataset = dataset.returned_data;
+            for (let i = 0; i < dataset.mean_compound.length; i++) {
+                let point = {'compound': dataset.mean_compound[i],
                     'prop_spk_other_lang': dataset.prop_spk_other_lang[i],
-                    'fit': dataset.fit[i]}
+                    'count': dataset.count[i],
+                    'sa2': dataset.sa2[i]}
                 points.push(point);
+
             }
+            console.log(dataset);
+            regression = regressionLinear()
+                .x(d => d.prop_spk_other_lang)
+                .y(d => d.compound)
+                .domain([0, 1]);
+
+
         });
-        return points;
+        return {'points': points, 'regression': regression(points)};
     }
 </script>
 
 <svelte:window on:resize='{resize}'/>
-<!--<div class="relative flex items-center justify-center flex-col h-full w-full p-2 bg-white bg-opacity-30 rounded-2xl backdrop-filter">-->
 <div class="scatter-container">
     <div class="flex-item">
         <h1>Tweet sentiment vs diversity</h1>
@@ -105,21 +115,19 @@
             <!-- data -->
             {#await fetchData()}
                 <p>loading></p>
-            {:then points}
-
-                {#each points as point}
+            {:then data}
+                {#each data.points as point}
                     <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'
                             on:mousemove={mousemove}
                             on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
                             on:mouseout={() => {selected_point = undefined}}/>
 
-<!--                    on:mouseover={mouseover} on:mouseleave={mouseleave} on:mousemove={mousemove}-->
                 {/each}
                 <g id="fit-line">
-                    <line x1='{xScale(points[0].prop_spk_other_lang)}'
-                          x2='{xScale(points[points.length-1].prop_spk_other_lang)}'
-                          y1='{yScale(points[0].fit)}'
-                          y2='{yScale(points[points.length-1].fit)}'/>
+                    <line x1='{xScale(data.regression[0][0])}'
+                          x2='{xScale(data.regression[1][0])}'
+                          y1='{yScale(data.regression[0][1])}'
+                          y2='{yScale(data.regression[1][1])}'/>
                 </g>
                 <text class="y-label">
 
@@ -134,7 +142,9 @@
         {#if selected_point != undefined}
             <div transition:fade class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
                 <p>Diversity measure: {Math.round(selected_point.prop_spk_other_lang*1000)/10}%</p>
-                <p>Mean sentiment: {selected_point.compound}</p>
+                <p>Mean sentiment: {Math.round(selected_point.compound*100)/100}</p>
+<!--                <p>Tweet count: {selected_point.count}</p>-->
+<!--                <p>SA2: {selected_point.sa2}</p>-->
             </div>
         {/if}
     </div>
@@ -233,7 +243,7 @@
     }
 
     .tooltip {
-        position: absolute;
+        position: fixed;
         text-align: center;
         padding: 10px;
         background: white;

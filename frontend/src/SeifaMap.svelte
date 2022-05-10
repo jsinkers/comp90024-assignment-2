@@ -15,7 +15,6 @@
 
 	let container;
 	let map;
-	let elementPopup;
 	let popupTweet;
 	let popupSentiment;
 	let popupElectionIssue;
@@ -50,13 +49,13 @@
 			choropleth_colors_expression.push(choropleth_colors[i]);
 		}
 
-		const sentiment_layers = ['childcare', 'housing', 'taxes', 'aged care', 'health', 'economy'];
+		const sentiment_layers = ['Climate', 'Childcare', 'Housing', 'Taxation', 'Aged care', 'Health', 'Economy', 'Refugees'];
 		// https://colorswall.com/palette/1751/
 		const sentiment_colors = [ // "#03a8a0",
-			// "#039c4b",
+			 "#039c4b",
 			"#66d313",
 			"#fedf17",
-			// "#ff0984",
+			"#ff0984",
 			"#21409a",
 			"#04adff",
 			// "#e48873",
@@ -64,7 +63,7 @@
 			"#f44546"
 		];
 		// compile a color expression to color markers on the map
-		let marker_colors_expression = ['match', ['get', 'election_issue']];
+		let marker_colors_expression = ['match', ['get', 'issue']];
 		for (let i = 0; i < sentiment_layers.length; i++) {
 			marker_colors_expression.push(sentiment_layers[i]);
 			marker_colors_expression.push(sentiment_colors[i]);
@@ -83,7 +82,7 @@
             map.addSource('sa2', {
                 'type':'geojson',
 				// TODO: replace with API URL
-                'data':'/sa2-seifa-lang-small.geojson'
+                'data':'http://melbourneliveability.live/api/analytics/socioeconomic/seifa/'
             });
             map.addLayer({
                 'id':'sa2-fill',
@@ -110,8 +109,7 @@
 			// Add the image to the map style.
 			map.addSource('tweets', {
 				'type': 'geojson',
-				// TODO: replace with API URL
-				'data': '/twitter-melb-filtered-issues.geojson'
+				'data': 'http://melbourneliveability.live/api/analytics/socioeconomic/tweets/'
 			});
 			map.addLayer({
 				'id': 'tweets-points',
@@ -137,7 +135,7 @@
 			const coordinates = e.features[0].geometry.coordinates.slice();
 			popupSentiment = e.features[0].properties.compound;
 			popupTweet = e.features[0].properties.text;
-			popupElectionIssue = e.features[0].properties.election_issue;
+			popupElectionIssue = e.features[0].properties.issue;
 			let description = `<p><b>Tweet:</b> ${popupTweet}</p>`;
 			description += `<p><b>Election issue:</b> ${popupElectionIssue}</p>`;
 			description += `<p><b>Sentiment:</b> ${popupSentiment}</p>`;
@@ -158,13 +156,16 @@
 
 		// Add info for SA2: prop to legend
 		map.on('mousemove', (event) => {
-			const sa2 = map.queryRenderedFeatures(event.point, {
-				layers: ['sa2-fill']
-			});
-			document.getElementById('pd').innerHTML = sa2.length
-					? `<p>${sa2[0].properties.SA2_NAME16}</p><p>IRSAD: ${sa2[0].properties.irsad_score}</p>`
-					: "";
+			if (map.loaded) {
+				const sa2 = map.queryRenderedFeatures(event.point, {
+					layers: ['sa2-fill']
+				});
+				document.getElementById('pd').innerHTML = sa2.length
+						? `<p>${sa2[0].properties.name}</p><p>IRSAD: ${sa2[0].properties.irsad_score}</p>`
+						: "";
+			}
 		});
+
 
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
@@ -205,7 +206,6 @@
 	const showModal = () => modal.set(bind(SeifaPopup, {}));
 </script>
 
-<!-- this special element will be explained in a later section -->
 <svelte:head>
 	<link
 			rel="stylesheet"
@@ -213,14 +213,6 @@
 			on:load={load}
 	/>
 </svelte:head>
-<!--
-<div class='popup' bind:this={elementPopup}>
-  <slot name="popup"></slot>
-	<p>Tweet: {popupTweet}</p>
-	<p>Election issue: {popupElectionIssue}</p>
-	<p>Sentiment: {popupSentiment}</p>
-</div>
--->
 
 <div id="map" bind:this={container}>
 	{#if map}
