@@ -201,6 +201,7 @@ class Language(Resource):
     # Return geojson format:
     # { "type": "Feature", "properties": { "SA2_MAIN16": "206011105", "SA2_NAME16": "Brunswick", "prop_spk_other_lang": 0.30813904905155842 },
     #   "geometry": { "type": "Polygon", "coordinates": [ [ [ 144.94974, -37.76277 ], [ 144.95003, -37.76105 ] ] ] } }
+    @cache.cached(timeout=app.config["CACHE_LONG_TIMEOUT"])
     def get(self):
         # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
@@ -216,6 +217,7 @@ class Language(Resource):
 class Sentiment(Resource):
     # Return a dict (miniature dataframe):
     # {'sa2':sa2s, ‘mean_compound’: list, 'count':counts, ‘prop_spk_other_lang’: list}
+    @cache.cached()
     def get(self, scenario_id):
         abort_if_scenario_doesnt_exist(scenario_id)
         # initialize a CouchInterface object to retrieve data from couchdb
@@ -329,6 +331,7 @@ class SE_Tweets(Resource):
     #   "text": "#auspol tweets, an egghead with my twitter name just followed me? Should I be worried? Weirdness. ..",},
     #   "geometry": { "type": "Point", "coordinates": [ 144.95380, -37.77403 ] } }
 
+    @cache.cached()
     def get(self):
         ci = create_couch_interface()
         ci = CouchInterface(address='172.26.134.62', port='5984', username='admin', password='password')
@@ -342,6 +345,7 @@ class Seifa(Resource):
     # Return geojson format (using seifa score instead of prop_spk_other_lang):
     # { "type": "Feature", "properties": { "SA2_MAIN16": "206011105", "SA2_NAME16": "Brunswick", "irsad_score":1106},
     #   "geometry": { "type": "Polygon", "coordinates": [ [ [ 144.94974, -37.76277 ], [ 144.95003, -37.76105 ] ] ] } }
+    @cache.cached(timeout=app.config["CACHE_LONG_TIMEOUT"])
     def get(self):
         ci = create_couch_interface()
         # load language info and polygons of sa2's from database
@@ -355,6 +359,7 @@ class Seifa(Resource):
 class Issues_Sentiment(Resource):
     # Return a dict (miniature dataframe):
     # { ‘mean_compound’: list, 'count': list, ‘issue’: list of all the issues}
+    @cache.cached()
     def get(self, scenario_id):
         abort_if_scenario_doesnt_exist(scenario_id)
         # initialize a CouchInterface object to retrive data from couchdb

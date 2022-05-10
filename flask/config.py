@@ -23,3 +23,5 @@ VIEW_FOR_SOCIAL = "socioeconomic_sentiment_stats"
 CACHE_TYPE = "SimpleCache"
 # 5 minutes default cache time
 CACHE_DEFAULT_TIMEOUT = 300
+# 30 minutes long cache time
+CACHE_LONG_TIMEOUT = 1800
