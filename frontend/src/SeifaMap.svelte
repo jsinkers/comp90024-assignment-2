@@ -166,6 +166,7 @@
 			}
 		});
 
+
 		// create legend
 		const legend_choropleth = document.getElementById('legend-choropleth');
 		choropleth_layers.forEach((layer, i) => {

@@ -5,43 +5,44 @@
 	export let title;
 	// data variable of interest
 	export let variable;
-	import { pointer } from 'd3';
+	import { json, pointer } from 'd3';
 	import {fade} from 'svelte/transition';
 
-	const points = [
-		{ issue: "health", count: 200, compound: -0.1},
-		{ issue: "economy", count: 250, compound: 0.2},
-		{ issue: "childcare",count: 123, compound: 0.3},
-		{ issue: "housing", count: 54, compound: 0.2},
-		{ issue: "tax cuts", count: 25, compound: -.3},
-		{ issue: "aged care", count: 76, compound: -0.5}
-	];
+	let data_url = "http://melbourneliveability.live/api/analytics/socioeconomic/election-issues/";
 
-	// GET /api/analytics/socioeconomic/{election_issue}/summary
-	//const xTicks = ["health", "economy", "childcare", "housing", "tax cuts", "aged care"];
-	let xTicks = [];
-	for (let i = 0; i < points.length; i++) {
-		xTicks.push(points[i].issue)
-	}
-	let yTicks;
 	let ys = [];
-	if (variable === 'compound') {
-		yTicks = [-1, -0.5, 0, 0.5, 1];
-		for (let i = 0; i < points.length; i++) {
-			ys.push(points[i].compound)
-		}
-	} else if (variable === 'count') {
-		yTicks = [0, 100, 200, 300, 400];
-		for (let i = 0; i < points.length; i++) {
-			ys.push(points[i].count)
-		}
+	let issues;
+	let xTicks = [];
+	let yTicks;
+
+	async function fetchData() {
+		await json(data_url).then((dataset) => {
+			let data = dataset.returned_data;
+			issues = data.issue;
+			// determine x axes
+			xTicks = issues;
+
+			// determine y axes and data
+			if (variable === 'compound') {
+				ys = data.mean_compound;
+				// Math.max(...ys.map(Math.abs))
+				yTicks = [-1, -0.5, 0, 0.5, 1];
+			} else if (variable === 'count') {
+				ys = data.count;
+				yTicks = [];
+				let step = 500;
+				let max_y_tick = Math.ceil(Math.max(...ys)/step)*step;
+				for (let i = 0; i <= max_y_tick; i += step) {
+					yTicks.push(i);
+				}
+			}
+		});
+		return {"issues": issues, "ys": ys, "xTicks": xTicks, "yTicks": yTicks};
 	}
-	console.log(Math.min.apply(null, yTicks));
 
 	const padding = { top: 20, right: 15, bottom: 20, left: 25 };
-
-	let width = 500;
-	let height = 200;
+	let width = 650;
+	let height = 300;
 
 	$: xScale = scaleLinear()
 			.domain([0, xTicks.length])
@@ -56,7 +57,6 @@
 
 	let tooltip;
 	let opacity;
-	let tooltip_data;
 	let tooltip_left;
 	let tooltip_top;
 	let mouse_x;
@@ -76,41 +76,45 @@
 
 <h2>{title}</h2>
 
-<!--<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>-->
 <div class="chart" bind:clientHeight={height}>
-	<svg>
-		<!-- y axis -->
-		<g class="axis y-axis">
-			{#each yTicks as tick}
-				<g class="tick tick-{tick}" transform="translate(0, {yScale(tick)})">
-					<line x2="100%"></line>
-					<text y="-4">{tick}</text>
-				</g>
-			{/each}
-		</g>
+	<svg style="width: {width}; height: {height}">
+		{#await fetchData()}
+			<p>Loading</p>
+		{:then chartData}
+			<!-- y axis -->
+			<g class="axis y-axis">
+				{#each chartData.yTicks as tick}
+					<g class="tick tick-{tick}" transform="translate(0, {yScale(tick)})">
+						<line x2="100%"></line>
+						<text y="-4">{tick}</text>
+					</g>
+				{/each}
+			</g>
+			<!-- x axis -->
+			<g class="axis x-axis">
+				{#each chartData.issues as issue, i}
+					<g class="tick" transform="translate({xScale(i)},{height})">
+						<text x="{barWidth/2}" y="-4">{issue}</text>
+					</g>
+				{/each}
+			</g>
 
-		<!-- x axis -->
-		<g class="axis x-axis">
-			{#each points as point, i}
-				<g class="tick" transform="translate({xScale(i)},{height})">
-					<text x="{barWidth/2}" y="-4">{point.issue}</text>
-				</g>
-			{/each}
-		</g>
-
-		<g class='bars'>
-			{#each ys as point, i}
-				<rect
-						x="{xScale(i) + 2}"
-						y="{Math.min(yScale(point), yScale(0))}"
-						height="{Math.abs(yScale(0)-yScale(point))}"
-						width="{barWidth}"
-						on:mousemove={mousemove}
-						on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
-						on:mouseout={() => {selected_point = undefined}}
-				></rect>
-			{/each}
-		</g>
+			<g class='bars'>
+				{#each chartData.ys as point, i}
+					<rect
+							x="{xScale(i) + 2}"
+							y="{Math.min(yScale(point), yScale(0))}"
+							height="{Math.abs(yScale(0)-yScale(point))}"
+							width="{barWidth}"
+							on:mousemove={mousemove}
+							on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
+							on:mouseout={() => {selected_point = undefined}}
+					></rect>
+				{/each}
+			</g>
+		{:catch error}
+			<p>{error.message}</p>
+		{/await}
 	</svg>
 	{#if selected_point != undefined}
 		<div transition:fade class="tooltip" bind:this={tooltip} opacity={opacity} style="left: {tooltip_left}; top: {tooltip_top}">
@@ -126,14 +130,16 @@
 
 	.chart {
 		width: 100%;
-		max-width: 500px;
+		/*max-width: 500px;*/
 		margin: 0 auto;
+		display: flex;
+		justify-content: center;
 	}
 
 	svg {
+		display: block;
 		position: relative;
-		width: 100%;
-		height: 200px;
+		/*width: 100%;*/
 		overflow: visible;
 	}
 

@@ -9,7 +9,7 @@
 	const showModal = () => modal.set(bind(Popup, {}));
 </script>
 
-<div class="container">
+<div class="container space-y-4">
 	<div class="flex-item">
 		<div class="chart">
 			<BarChart title="Tweet count by election issue" variable="count"/>

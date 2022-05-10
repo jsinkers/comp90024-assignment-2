@@ -106,7 +106,6 @@
             {#await fetchData()}
                 <p>loading></p>
             {:then points}
-
                 {#each points as point}
                     <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'
                             on:mousemove={mousemove}
