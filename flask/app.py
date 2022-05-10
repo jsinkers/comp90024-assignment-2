@@ -135,7 +135,7 @@ def home(path):
 
 
 # Testing route
-@app.route("/api/twitter_database_info")
+@app.route("/api/twitter_database_info/")
 def database_status():
     return app.config['TWITTER_DB'].info()
 
@@ -150,7 +150,7 @@ class API(Resource):
         return [{'resource': 'analytics',
                  'description': 'analytic scenarios exploring liveability in Melbourne',
                  'format': 'json'},
-                {'resource': 'twitter_db_info',
+                {'resource': 'twitter_database_info',
                  'description': 'information about the state of the tweet database',
                  'format': 'json'}]
 
@@ -382,11 +382,11 @@ class Issues_Sentiment(Resource):
 
 
 # Resources
-api.add_resource(API, '/api')
+api.add_resource(API, '/api/')
 # general info
-api.add_resource(Analytics, '/api/analytics')
+api.add_resource(Analytics, '/api/analytics/')
 # election scenario
-api.add_resource(Diversity, '/api/analytics/diversity')
+api.add_resource(Diversity, '/api/analytics/diversity/')
 api.add_resource(Tweets, '/api/analytics/diversity/tweets/')
 api.add_resource(Language, '/api/analytics/diversity/language/')
 api.add_resource(Sentiment, '/api/analytics/<string:scenario_id>/sentiment/')
