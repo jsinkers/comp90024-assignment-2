@@ -1,7 +1,6 @@
-from flask import Flask, jsonify, request, make_response, url_for, send_from_directory
+from flask import Flask, send_from_directory
 from flask_restful import Resource, Api, abort
 import couchdb as db
-import logging
 from couchback_temp import CouchInterface
 
 # for data preprocessing
@@ -31,7 +30,7 @@ def create_couch_interface():
 
 def abort_if_scenario_doesnt_exist(scenario):
     if scenario not in analytics:
-        abort(404, message="Todo {} doesn't exist".format(scenario))
+        abort(404, message="Scenario {} doesn't exist".format(scenario))
 
 
 def join_languages_and_polygons(languages, polygons):
@@ -41,6 +40,7 @@ def join_languages_and_polygons(languages, polygons):
         # get the initial key-value pair
         sa2 = list(output.keys())[0]
         value = list(output.values())[0]
+        prop = None
 
         if 'Proportion' in value:
             prop = value["Proportion"]
@@ -112,6 +112,7 @@ def language_proportion_dict(sa2_languages):
         # get the initial key-value pair
         sa2 = list(output.keys())[0]
         value = list(output.values())[0]
+        prop = None
 
         if 'Proportion' in value:
             prop = value["Proportion"]
@@ -198,7 +199,7 @@ class Language(Resource):
     # { "type": "Feature", "properties": { "SA2_MAIN16": "206011105", "SA2_NAME16": "Brunswick", "prop_spk_other_lang": 0.30813904905155842 },
     #   "geometry": { "type": "Polygon", "coordinates": [ [ [ 144.94974, -37.76277 ], [ 144.95003, -37.76105 ] ] ] } }
     def get(self):
-        # initialize a CouchInterface object to retrive data from couchdb
+        # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
 
         # load language info and polygons of sa2's from database
@@ -214,7 +215,7 @@ class Sentiment(Resource):
     # {'sa2':sa2s, ‘mean_compound’: list, 'count':counts, ‘prop_spk_other_lang’: list}
     def get(self, scenario_id):
         abort_if_scenario_doesnt_exist(scenario_id)
-        # initialize a CouchInterface object to retrive data from couchdb
+        # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
         sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
         lang_prop_dict = language_proportion_dict(sa2_languages)
@@ -229,9 +230,9 @@ class Sentiment(Resource):
             results = ci.grouped_results(db_name, design_doc, view_name)
 
             # convert into a dict of lists (like a dataframe)
-            sa2s = [];
-            avgs = [];
-            counts = [];
+            sa2s = []
+            avgs = []
+            counts = []
             lang_props = []
             for result in results:
                 sa2 = list(result.keys())[0]
@@ -283,6 +284,7 @@ def join_seifa_and_polygons(languages, polygons):
         # get the initial key-value pair
         sa2 = list(output.keys())[0]
         value = list(output.values())[0]
+        irsad_score = None
 
         if 'seifa' in value:
             irsad_score = value['seifa']
@@ -364,8 +366,8 @@ class Issues_Sentiment(Resource):
             results = ci.grouped_results_singlekey(db_name, design_doc, view_name)
 
             # convert into a dict of lists (like a dataframe)
-            avgs = [];
-            counts = [];
+            avgs = []
+            counts = []
             issues = []
             for result in results:
                 issue = list(result.keys())[0]
