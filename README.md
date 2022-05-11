@@ -1,13 +1,11 @@
-# COMP90024 Assignment 2: Livability in Melbourne
+# comp90024-assignment-2
 
 - install python dependencies from project root directory using `pip install -r modules.txt`
 - install ansible dependencies from project root directory using `ansible-galaxy install -r ansible-requirements.yml`
  
-## Docker
 
-`Dockerfile` can be used to create a docker image of the twitter harvester
 
-## Database - Ansible Playbook 
+## Database Deployment - Ansible Playbook 
 
 - Directory `database`
 - Contains ansible playbook for initialising 3 VMs and installing dependencies for couchDB.
@@ -27,6 +25,10 @@ From this directory, to run the playbook, use:
   - `harvest.py`: uses Twitter filter streaming API
   - `searchTwitter.py`: uses Twitter 30 day search API 
 - configure info in `INFO.py`
+
+### Docker
+
+`Dockerfile` can be used to create a docker image of the twitter harvester
 
 ## Flask 
 
@@ -52,10 +54,28 @@ From this directory, to run the playbook, use:
 - push the docker image using `sinkers/comp90024-backend`
 - docker compose can be run from the flask directory `docker-compose up`
 
-
 ## Frontend
 
 - Directory `frontend`
 - This is a `svelte` app
 - in `frontend` run `npm install` to install dependencies
 - to build the app run `npm run build`
+
+## Views
+
+- Directory `views`
+
+### Usage
+
+You can import couchback in your code to use following functions.
+`ci = CouchInterface()
+view = ci.create_regex_view([args])`
+More information is shown in the test cases below `if __name__ == '__main__'` and in the docstring of each method.
+
+### Modules
+
+* couchback  
+  It has two classes `CouchInterface` and `MapGenerator`. The first one is used to connect to a couchdb database, create views, and get the views.
+  The second one can be used to quickly generate a JavaScript map function.
+* preprocess  
+  In this module, some functions listed to get common used views. You can create your own design documents to get custom views like the examples, but you must not use the same design name. Note that you cannot use a same design name to overwrite a design document with it.
