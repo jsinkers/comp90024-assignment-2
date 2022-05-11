@@ -1,6 +1,7 @@
 # COMP90024 Assignment 2: Livability in Melbourne
 
-- install python dependencies using `pip install -r modules.txt`
+- install python dependencies from project root directory using `pip install -r modules.txt`
+- install ansible dependencies from project root directory using `ansible-galaxy install -r ansible-requirements.yml`
  
 ## Docker
 

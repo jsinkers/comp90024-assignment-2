@@ -1,0 +1,5 @@
+Type,Host,Answer,TTL,Priority
+A,melbourneliveability.live,172.26.128.40,300,
+A,melbourneliveability.live,172.26.134.62,300,
+A,www.melbourneliveability.live,172.26.128.40,300,
+A,www.melbourneliveability.live,172.26.134.62,300,
