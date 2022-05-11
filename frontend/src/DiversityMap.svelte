@@ -4,6 +4,7 @@
 	import {mapbox, key} from './mapbox.js';
 	import Modal, {bind} from 'svelte-simple-modal';
 	import DiversityPopup from './InfoDiversityMap.svelte';
+	import {DoubleBounce} from 'svelte-loading-spinners';
 
 	setContext(key, {
 		getMap: () => map,
@@ -15,6 +16,7 @@
 
 	let container;
 	let map;
+	let spinner = true;
 
 	const modal = writable(null);
 	const showModal = () => modal.set(bind(DiversityPopup, {}));
@@ -51,7 +53,14 @@
 			zoom,
 		});
 
-		setTimeout(() => {
+		map.on('idle', () => {
+			// once the sa2 layer is loaded, hide the spinner
+			if (map.getSource('sa2') && map.isSourceLoaded('sa2')) {
+				spinner = false;
+			}
+		});
+
+		map.on('load', () => {
 			map.addSource('sa2', {
 				'type': 'geojson',
 				'data': 'http://melbourneliveability.live/api/analytics/diversity/language/'
@@ -122,7 +131,7 @@
 					'circle-opacity': ['max', 0.5, ['abs', ['get', 'compound']]]
 				}
 			});
-		}, 2000);
+		});
 
 		// Create a popup, but don't add it to the map yet.
 		const popup = new mapbox.Popup({
@@ -153,12 +162,14 @@
 		});
 		// Add info for SA2: prop to legend
 		map.on('mousemove', (event) => {
-			const sa2 = map.queryRenderedFeatures(event.point, {
-				layers: ['sa2-fill']
-			});
-			document.getElementById('pd').innerHTML = sa2.length
-				? `<p>${sa2[0].properties.name}</p><p>${Math.round(sa2[0].properties.prop *1000)/10}%</p>`
-				: "";
+			if (!spinner) {
+				const sa2 = map.queryRenderedFeatures(event.point, {
+					layers: ['sa2-fill']
+				});
+				document.getElementById('pd').innerHTML = sa2.length
+						? `<p>${sa2[0].properties.name}</p><p>${Math.round(sa2[0].properties.prop * 1000) / 10}%</p>`
+						: "";
+			}
 		});
 
 		// create legend
@@ -231,6 +242,11 @@
 		<div id='features'><h2>SA2 Diversity</h2><div id='pd'></div></div>
 	</div>
 </div>
+{#if spinner}
+	<div id="spinner" class="map-overlay z-50">
+		<DoubleBounce color="#4caf50"></DoubleBounce>
+	</div>
+{/if}
 <div class="map-overlay " id="info">
 	<Modal show={$modal}>
 		<span class="fa-solid fa-info-circle icon" on:click={showModal}></span>
@@ -290,5 +306,12 @@
 		position: absolute;
 		width: fit-content;
 		height: fit-content;
+	}
+
+	#spinner {
+		@apply z-50 bg-transparent;
+		position: absolute;
+		top: 50%;
+		left: 50%;
 	}
 </style>
