@@ -117,11 +117,12 @@
                 <p>loading></p>
             {:then data}
                 {#each data.points as point}
+                    {#if point.prop_spk_other_lang != null}
                     <circle cx='{xScale(point.prop_spk_other_lang)}' cy='{yScale(point.compound)}' r='3'
                             on:mousemove={mousemove}
                             on:mouseover={(event) => {selected_point = point; setMousePosition(event)}}
                             on:mouseout={() => {selected_point = undefined}}/>
-
+                    {/if}
                 {/each}
                 <g id="fit-line">
                     <line x1='{xScale(data.regression[0][0])}'
