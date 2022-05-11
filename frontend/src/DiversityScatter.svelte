@@ -19,7 +19,7 @@
     let svg;
     let margin = {top: 20, right: 30, bottom: 30, left: 60};
     let width = 600;
-    let height= 600;
+    let height = 350;
 
     const padding = { top: 20, right: 40, bottom: 40, left: 25 };
 
@@ -54,6 +54,9 @@
     }
 
     onMount(() => {
+        ({ width, height } = svg.getBoundingClientRect());
+        console.log(width);
+        console.log(height);
         resize();
     });
 
@@ -85,11 +88,11 @@
 </script>
 
 <svelte:window on:resize='{resize}'/>
-<div class="scatter-container">
+<div class="scatter-container" bind:clientWidth={width}>
     <div class="flex-item">
         <h1>Tweet sentiment vs diversity</h1>
     </div>
-    <div class="chart flex-item" bind:clientWidth={width}>
+    <div class="chart flex-item" >
         <svg id="plot" bind:this={svg} {width} {height}>
             <!-- y axis -->
             <g class='axis y-axis'>
