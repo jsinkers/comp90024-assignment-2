@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from flask import Flask, send_from_directory
 from flask_restful import Resource, Api, abort
 import couchdb as db
@@ -22,9 +24,9 @@ analytics = {
 
 
 def create_couch_interface():
-    # initialize a CouchInterface object to retrieve data from couchdb
-    ci = CouchInterface(address=app.config["COUCHDB_IP"], port=str(app.config["COUCHDB_PORT"]),
-                        username=app.config["COUCHDB_USER"], password=app.config["COUCHDB_PASSWORD"])
+    # initialize a CouchInterface object to retrive data from couchdb
+    ci = CouchInterface(address=app.config["COUCHDB_IP"], port=str(app.config["COUCHDB_PORT"]), \
+    username=app.config["COUCHDB_USER"], password=app.config["COUCHDB_PASSWORD"])
     return ci
 
 
@@ -189,8 +191,9 @@ class Tweets(Resource):
     def get(self):
         # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
-        valid_tweets = ci.non_grouped_results(db_name="twitter_historic",
-                                              design_doc="tweets", view_name="election_tweets")
+
+        valid_tweets = ci.non_grouped_results(db_name=app.config["COUCHDB_HISTORIC_DB"], \
+        design_doc=app.config["DESIGN_DOC"], view_name=app.config["VIEW_FOR_ELECTION_TWEETS"])
         return tweets_to_geojson(valid_tweets)
 
 
@@ -203,8 +206,10 @@ class Language(Resource):
         ci = create_couch_interface()
 
         # load language info and polygons of sa2's from database
-        sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
-        sa2_polygons = ci.non_grouped_results(db_name="abs_austgeo_sa2", design_doc="filter", view_name="default")
+        sa2_languages = ci.non_grouped_results(db_name=app.config["LSAHBSC"], \
+        design_doc=app.config["DESIGN_DOC_AURIN"], view_name=app.config["VIEW_FOR_AURIN"])
+        sa2_polygons = ci.non_grouped_results(db_name=app.config["AUSTGEO"], \
+        design_doc=app.config["DESIGN_DOC_AURIN"], view_name=app.config["VIEW_FOR_AURIN"])
 
         # join two outputs, and output a geojson string
         return join_languages_and_polygons(sa2_languages, sa2_polygons)
@@ -217,14 +222,16 @@ class Sentiment(Resource):
         abort_if_scenario_doesnt_exist(scenario_id)
         # initialize a CouchInterface object to retrieve data from couchdb
         ci = create_couch_interface()
-        sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
+        sa2_languages = ci.non_grouped_results(db_name=app.config["LSAHBSC"], \
+        design_doc=app.config["DESIGN_DOC_AURIN"], view_name=app.config["VIEW_FOR_AURIN"])
         lang_prop_dict = language_proportion_dict(sa2_languages)
+        scenario = deepcopy(analytics[scenario_id])
 
         if (scenario_id == "diversity"):
 
             # get queried results in a list of dict: e.g.
             # {'214021380': {'sum': -1.1561, 'count': 2, 'min': -0.6808, 'max': -0.4753, 'sumsqr': 0.68939873}}
-            db_name = app.config["COUCHDB_TWITTER_DB"]
+            db_name = app.config["COUCHDB_HISTORIC_DB"]
             design_doc = app.config["DESIGN_DOC"]
             view_name = app.config["VIEW_FOR_ELECTION"]
             results = ci.grouped_results(db_name, design_doc, view_name)
@@ -242,9 +249,9 @@ class Sentiment(Resource):
                 lang_props.append(lang_prop_dict[sa2])
 
             results_zipped = {'sa2': sa2s, 'mean_compound': avgs, 'count': counts, 'prop_spk_other_lang': lang_props}
-            analytics[scenario_id]['returned_data'] = results_zipped
+            scenario['returned_data'] = results_zipped
 
-        return analytics[scenario_id]
+        return scenario
 
 
 def tweets_to_geojson_SE(valid_tweets):
@@ -328,9 +335,8 @@ class SE_Tweets(Resource):
 
     def get(self):
         ci = create_couch_interface()
-        ci = CouchInterface(address='172.26.134.62', port='5984', username='admin', password='password')
-        valid_tweets = ci.non_grouped_results_singlekey(db_name="twitter_historic", design_doc="tweets",
-                                                        view_name="socioeconomic_tweets")
+        valid_tweets = ci.non_grouped_results_singlekey(db_name=app.config["COUCHDB_HISTORIC_DB"], \
+        design_doc=app.config["DESIGN_DOC"], view_name=app.config["VIEW_FOR_SOCIAL_TWEETS"])
 
         return tweets_to_geojson_SE(valid_tweets)
 
@@ -342,8 +348,10 @@ class Seifa(Resource):
     def get(self):
         ci = create_couch_interface()
         # load language info and polygons of sa2's from database
-        sa2_seifas = ci.non_grouped_results(db_name="aurin_seifa_sa2", design_doc="filter", view_name="default")
-        sa2_polygons = ci.non_grouped_results(db_name="abs_austgeo_sa2", design_doc="filter", view_name="default")
+        sa2_seifas = ci.non_grouped_results(db_name=app.config["SEIFA"], \
+        design_doc=app.config["DESIGN_DOC_AURIN"], view_name=app.config["VIEW_FOR_AURIN"])
+        sa2_polygons = ci.non_grouped_results(db_name=app.config["AUSTGEO"], \
+        design_doc=app.config["DESIGN_DOC_AURIN"], view_name=app.config["VIEW_FOR_AURIN"])
 
         # join two outputs, and output a geojson string
         return join_seifa_and_polygons(sa2_seifas, sa2_polygons)
@@ -356,11 +364,12 @@ class Issues_Sentiment(Resource):
         abort_if_scenario_doesnt_exist(scenario_id)
         # initialize a CouchInterface object to retrive data from couchdb
         ci = create_couch_interface()
+        scenario = deepcopy(analytics[scenario_id])
 
         if (scenario_id == "socioeconomic"):
             # get queried results in a list of dict: e.g.
             # {'Aged care': { "sum":-33.6484, "count": 190, "min": -0.8442, "max": 0.6597, "sumsqr": 36.8765}}
-            db_name = app.config["COUCHDB_TWITTER_DB"]
+            db_name = app.config["COUCHDB_NEW_DB"]
             design_doc = app.config["DESIGN_DOC"]
             view_name = app.config["VIEW_FOR_SOCIAL"]
             results = ci.grouped_results_singlekey(db_name, design_doc, view_name)
@@ -376,9 +385,9 @@ class Issues_Sentiment(Resource):
                 counts.append(result[issue]['count'])
 
             results_zipped = {'issue': issues, 'mean_compound': avgs, 'count': counts}
-            analytics[scenario_id]['returned_data'] = results_zipped
+            scenario['returned_data'] = results_zipped
 
-        return analytics[scenario_id]
+        return scenario
 
 
 # Resources
@@ -397,13 +406,13 @@ api.add_resource(Seifa, '/api/analytics/socioeconomic/seifa/')
 api.add_resource(Issues_Sentiment, '/api/analytics/<string:scenario_id>/election-issues/')
 
 # connect to database
-couchdb_url = f'http://{app.config["COUCHDB_USER"]}:{app.config["COUCHDB_PASSWORD"]}@{app.config["COUCHDB_IP"]}:{app.config["COUCHDB_PORT"]}/'
-app.logger.info("Connecting to couchDB...")
-couchdb_server = db.Server(couchdb_url)
-app.config['COUCHDB'] = couchdb_server
-app.config['TWITTER_DB'] = couchdb_server[app.config["COUCHDB_TWITTER_DB"]]
-app.logger.debug(app.config['TWITTER_DB'])
-app.logger.info("Connected to couchDB")
+# couchdb_url = f'http://{app.config["COUCHDB_USER"]}:{app.config["COUCHDB_PASSWORD"]}@{app.config["COUCHDB_IP"]}:{app.config["COUCHDB_PORT"]}/'
+# app.logger.info("Connecting to couchDB...")
+# couchdb_server = db.Server(couchdb_url)
+# app.config['COUCHDB'] = couchdb_server
+# app.config['TWITTER_DB'] = couchdb_server[app.config["COUCHDB_TWITTER_DB"]]
+# app.logger.debug(app.config['TWITTER_DB'])
+# app.logger.info("Connected to couchDB")
 
 if __name__ == "__main__":
     app.run(debug=app.config["DEBUG"])
