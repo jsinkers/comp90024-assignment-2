@@ -18,4 +18,3 @@
   roles:
     - role: volume
     - role: docker
-    - role: couchdb

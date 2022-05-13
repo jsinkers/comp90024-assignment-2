@@ -59,4 +59,3 @@ instances:
   - name: database-3
     volumes: ['database-vol-3']
 
-

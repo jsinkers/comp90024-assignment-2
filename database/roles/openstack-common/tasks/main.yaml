@@ -14,3 +14,4 @@
     name: ['pip', 'openstacksdk']
     state: latest
 # pip install --upgrade pip && pip install openstacksdk
+

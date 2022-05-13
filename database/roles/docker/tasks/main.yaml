@@ -57,3 +57,4 @@
   ansible.builtin.pip:
     name: ['docker-compose']
     state: latest
+
