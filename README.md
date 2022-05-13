@@ -1,9 +1,23 @@
-# comp90024-assignment-2
+# Liveability in Melbourne: a cloud-based application 
+
+Exploring liveability in Melbourne through social engagement and opportunity, using a cloud-based application and harvested tweets in combination with other datasets.
+
+## Site
+
+http://melbourneliveability.live
+
+Note this is only accessible on the UniMelb network/VPN
+
+## API
+
+http://melbourneliveability.live/api/
+
+Note this is only accessible on the UniMelb network/VPN
+
+## Installing Dependencies
 
 - install python dependencies from project root directory using `pip install -r modules.txt`
 - install ansible dependencies from project root directory using `ansible-galaxy install -r ansible-requirements.yml`
- 
-
 
 ## Database Deployment - Ansible Playbook 
 
@@ -33,7 +47,7 @@ From this directory, to run the playbook, use:
 ## Flask 
 
 - Directory `flask`
-- Serves the frontend and ReST API
+- Serves the ReST API
 - before running the development server you need to build the frontend
 - to run the development server: `flask run`
 - run with gunicorn using: `gunicorn -c gunicorn.conf.py app:app`
