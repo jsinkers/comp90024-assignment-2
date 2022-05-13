@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from flask import Flask, send_from_directory
 from flask_restful import Resource, Api, abort
 import couchdb as db
@@ -219,6 +221,7 @@ class Sentiment(Resource):
         ci = create_couch_interface()
         sa2_languages = ci.non_grouped_results(db_name="aurin_lsahbsc_sa2", design_doc="filter", view_name="default")
         lang_prop_dict = language_proportion_dict(sa2_languages)
+        scenario = deepcopy(analytics[scenario_id])
 
         if (scenario_id == "diversity"):
 
@@ -242,9 +245,9 @@ class Sentiment(Resource):
                 lang_props.append(lang_prop_dict[sa2])
 
             results_zipped = {'sa2': sa2s, 'mean_compound': avgs, 'count': counts, 'prop_spk_other_lang': lang_props}
-            analytics[scenario_id]['returned_data'] = results_zipped
+            scenario['returned_data'] = results_zipped
 
-        return analytics[scenario_id]
+        return scenario
 
 
 def tweets_to_geojson_SE(valid_tweets):
@@ -356,6 +359,7 @@ class Issues_Sentiment(Resource):
         abort_if_scenario_doesnt_exist(scenario_id)
         # initialize a CouchInterface object to retrive data from couchdb
         ci = create_couch_interface()
+        scenario = deepcopy(analytics[scenario_id])
 
         if (scenario_id == "socioeconomic"):
             # get queried results in a list of dict: e.g.
@@ -376,9 +380,9 @@ class Issues_Sentiment(Resource):
                 counts.append(result[issue]['count'])
 
             results_zipped = {'issue': issues, 'mean_compound': avgs, 'count': counts}
-            analytics[scenario_id]['returned_data'] = results_zipped
+            scenario['returned_data'] = results_zipped
 
-        return analytics[scenario_id]
+        return scenario
 
 
 # Resources
