@@ -11,4 +11,4 @@ COPY . .
 
 WORKDIR /usr/my_app/data_harvest
 
-CMD [ "/bin/sh", "-c", "python harvest.py" ]
+CMD [ "/bin/sh", "-c", "python sevenDays.py" ]
